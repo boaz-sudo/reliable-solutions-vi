@@ -1,0 +1,5 @@
+name: reliable-solutions-vi
+static_sites:
+- name: website
+  source_dir: /
+  index_document: website.html
