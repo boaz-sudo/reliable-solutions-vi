@@ -493,6 +493,19 @@ select.rs-control{appearance:none;-webkit-appearance:none;
   ];
   function serviceById(id){ return SERVICES.filter(function(s){return s.id===id;})[0]; }
   var EMAIL_RE = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
+  /* ---- Web3Forms email delivery (no backend) ----
+     Submissions POST to Web3Forms, which emails them to reliablesolutionsvi@gmail.com.
+     Get a free access key for that address at https://web3forms.com (it emails you
+     the key), then paste it below. Until a real key is set, the API rejects sends. */
+  var WEB3FORMS_ACCESS_KEY = '5d7eadfe-3191-440f-8264-b47b39c7f015';
+  function postWeb3Forms(fields){
+    return fetch('https://api.web3forms.com/submit', {
+      method:'POST',
+      headers:{ 'Content-Type':'application/json', 'Accept':'application/json' },
+      body: JSON.stringify(Object.assign({ access_key: WEB3FORMS_ACCESS_KEY }, fields))
+    }).then(function(r){ return r.json(); });
+  }
+  var SEND_FAIL = 'Sorry — we couldn’t send that. Please try again, or call us at 866-378-3753.';
 
   /* ---------------------------------------------------------- Helpers ---------------------------------------------------------- */
   function esc(s){ return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
@@ -519,7 +532,7 @@ select.rs-control{appearance:none;-webkit-appearance:none;
 
   /* ---------------------------------------------------------- Contact form ---------------------------------------------------------- */
   var contactPanel = document.querySelector('[data-contact-panel]');
-  var contact = { name:'', email:'', service:'', message:'', errors:{}, sent:false };
+  var contact = { name:'', email:'', service:'', message:'', errors:{}, sent:false, sending:false };
   var SERVICE_OPTIONS = ['Network Installation','Security Camera System','Network Security','Maintenance & Support','Other / Not Sure'];
 
   function renderContact(){
@@ -549,7 +562,8 @@ select.rs-control{appearance:none;-webkit-appearance:none;
       selectField('service','Service Needed','Select a service...',SERVICE_OPTIONS,contact.service,'dark')+
       field('message','Message','textarea','Tell us a bit about your project or what you need help with...',contact.message,'dark')+
       (e.message?errLine(e.message,'dark'):'')+
-      '<button class="rs-btn rs-btn--send rs-btn--full" data-contact-send style="margin-top:8px">Send Message</button>';
+      (e.form?'<p class="rs-err" style="margin:0 0 12px">'+esc(e.form)+'</p>':'')+
+      '<button class="rs-btn rs-btn--send rs-btn--full" data-contact-send style="margin-top:8px'+(contact.sending?';opacity:.7;cursor:default':'')+'"'+(contact.sending?' disabled':'')+'>'+(contact.sending?'Sending…':'Send Message')+'</button>';
     // errors under name/email
     injectErr('name', e.name, 'dark');
     injectErr('email', e.email, 'dark');
@@ -571,13 +585,29 @@ select.rs-control{appearance:none;-webkit-appearance:none;
     input.addEventListener('input',function(ev){ contact[k]=ev.target.value; if(contact.errors[k]){contact.errors[k]=undefined;} });
   }
   function submitContact(){
+    if(contact.sending) return;
     var errs={};
     if(!contact.name.trim()) errs.name='Please enter your name.';
     if(!EMAIL_RE.test(contact.email)) errs.email='Enter a valid email.';
     if(!contact.message.trim()) errs.message='Let us know how we can help.';
     contact.errors=errs;
-    if(Object.keys(errs).length===0){ contact.sent=true; }
-    renderContact();
+    if(Object.keys(errs).length){ renderContact(); return; }
+    contact.sending=true; renderContact();
+    postWeb3Forms({
+      subject: 'Website message from '+contact.name,
+      from_name: 'Reliable Solutions VI website',
+      name: contact.name,
+      email: contact.email,
+      service_needed: contact.service||'(not specified)',
+      message: contact.message
+    }).then(function(res){
+      contact.sending=false;
+      if(res && res.success){ contact.sent=true; }
+      else { contact.errors={ form:(res && res.message) || SEND_FAIL }; }
+      renderContact();
+    }).catch(function(){
+      contact.sending=false; contact.errors={ form:SEND_FAIL }; renderContact();
+    });
   }
 
   /* Field builders (shared by contact + modal) */
@@ -660,7 +690,7 @@ select.rs-control{appearance:none;-webkit-appearance:none;
       services: initialService?[initialService]:[],
       property:'', timeframe:'', location:'',
       name:'', email:'', phone:'',
-      touched:false,
+      touched:false, sending:false, error:null,
       ref:'RSVI-'+Math.floor(1000+Math.random()*9000)
     };
     var host=document.createElement('div');
@@ -675,7 +705,32 @@ select.rs-control{appearance:none;-webkit-appearance:none;
       return true;
     }
     function next(){
-      if(state.step===2){ state.touched=false; state.step=3; renderModal(); return; }
+      if(state.step===2){
+        if(state.sending) return;
+        if(!canNext()){ state.touched=true; renderModal(); return; }
+        var svcNames=state.services.map(function(id){var s=serviceById(id);return s?s.title:'';}).filter(Boolean).join(', ');
+        state.touched=false; state.error=null; state.sending=true; renderModal();
+        postWeb3Forms({
+          subject:'Quote request '+state.ref+' — '+svcNames,
+          from_name:'Reliable Solutions VI website',
+          name:state.name,
+          email:state.email,
+          reference:state.ref,
+          services:svcNames,
+          property_type:state.property||'(not specified)',
+          timeframe:state.timeframe||'(not specified)',
+          location:state.location||'(not specified)',
+          phone:state.phone||'(not provided)'
+        }).then(function(res){
+          state.sending=false;
+          if(res && res.success){ state.step=3; }
+          else { state.error=(res && res.message) || SEND_FAIL; }
+          renderModal();
+        }).catch(function(){
+          state.sending=false; state.error=SEND_FAIL; renderModal();
+        });
+        return;
+      }
       if(!canNext()){ state.touched=true; renderModal(); return; }
       state.touched=false; state.step=Math.min(state.step+1,3); renderModal();
     }
@@ -706,7 +761,8 @@ select.rs-control{appearance:none;-webkit-appearance:none;
           field('name','Your Name','input','John Smith',state.name,'light')+
           field('email','Your Email','input','you@example.com',state.email,'light','email')+
           field('phone','Phone (optional)','input','340-555-0100',state.phone,'light')+
-          (state.touched&&!canNext()?'<p class="rs-err--light" style="margin:4px 0 0">Enter your name and a valid email.</p>':'');
+          (state.touched&&!canNext()?'<p class="rs-err--light" style="margin:4px 0 0">Enter your name and a valid email.</p>':'')+
+          (state.error?'<p class="rs-err--light" style="margin:8px 0 0">'+esc(state.error)+'</p>':'');
       } else {
         var first=(state.name.split(' ')[0])||'there';
         var svcNames=state.services.map(function(id){var s=serviceById(id);return s?s.title:'';}).filter(Boolean).join(', ');
@@ -725,7 +781,7 @@ select.rs-control{appearance:none;-webkit-appearance:none;
       var backBtn = (state.step>0&&state.step<3)?
         '<button class="rs-backbtn" data-back>'+icon('arrow-left',16)+' Back</button>':'<span></span>';
       if(state.step<2) foot=backBtn+'<button class="rs-btn rs-btn--solid rs-btn--md" data-next>Continue</button>';
-      else if(state.step===2) foot=backBtn+'<button class="rs-btn rs-btn--send rs-btn--md" data-next>Submit Request</button>';
+      else if(state.step===2) foot=backBtn+'<button class="rs-btn rs-btn--send rs-btn--md" data-next'+(state.sending?' disabled style="opacity:.7;cursor:default"':'')+'>'+(state.sending?'Sending…':'Submit Request')+'</button>';
       else foot='<span></span><button class="rs-btn rs-btn--solid rs-btn--md" data-done style="margin-left:auto">Done</button>';
 
       host.innerHTML =
