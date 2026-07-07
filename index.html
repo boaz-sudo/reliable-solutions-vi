@@ -1,7 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-<head><!DOCTYPE html>
-<html lang="en">
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
@@ -410,7 +408,7 @@ select.rs-control{appearance:none;-webkit-appearance:none;
     <h2 class="rs-contact__h">Ready to Get Started?</h2>
     <p class="rs-contact__sub">Reach out today for a free quote — no pressure, no runaround.</p>
     <div class="rs-contact__chips">
-      <a class="rs-chip" href="tel:8663783753"><span class="rs-chip__icon" data-icon="phone" data-size="20"></span><span class="rs-chip__text">866-378-3753</span></a>
+      <a class="rs-chip" href="tel:3407251919"><span class="rs-chip__icon" data-icon="phone" data-size="20"></span><span class="rs-chip__text">340-725-1919</span></a>
       <a class="rs-chip" href="mailto:reliablesolutionsvi@gmail.com"><span class="rs-chip__icon" data-icon="mail" data-size="20"></span><span class="rs-chip__text">reliablesolutionsvi@gmail.com</span></a>
     </div>
     <div class="rs-panel" data-contact-panel></div>
@@ -423,7 +421,7 @@ select.rs-control{appearance:none;-webkit-appearance:none;
 
 <!-- ============================================================ FOOTER ============================================================ -->
 <footer class="rs-footer">
-  © 2026 Reliable Solutions VI · <a href="https://reliablesolutionsvi.com">reliablesolutionsvi.com</a> · U.S. Virgin Islands · All rights reserved
+  © 2026 Reliable Solutions VI, LLC · <a href="https://reliablesolutionsvi.com">reliablesolutionsvi.com</a> · U.S. Virgin Islands · All rights reserved
 </footer>
 
 <button class="rs-totop" data-totop aria-label="Back to top"><span data-icon="arrow-up" data-size="20"></span></button>
@@ -432,3 +430,382 @@ select.rs-control{appearance:none;-webkit-appearance:none;
 
 <script>
 "use strict";
+(function(){
+  /* ---------------------------------------------------------- Icons ---------------------------------------------------------- */
+  var ICON_PATHS = {
+    wifi:'<path d="M5 12.55a11 11 0 0 1 14.08 0"/><path d="M1.42 9a16 16 0 0 1 21.16 0"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><circle cx="12" cy="20" r="1" fill="currentColor" stroke="none"/>',
+    camera:'<path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2"/>',
+    shield:'<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>',
+    clock:'<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>',
+    phone:'<path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.29 2 2 0 0 1 3.6 1h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L7.91 8.5a16 16 0 0 0 6.59 6.59l.96-.96a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>',
+    mail:'<path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/>',
+    menu:'<line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>',
+    x:'<line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>',
+    check:'<polyline points="20 6 9 17 4 12"/>',
+    'arrow-right':'<line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>',
+    'arrow-left':'<line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/>',
+    'arrow-up':'<line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/>',
+    home:'<path d="M3 9.5 12 3l9 6.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/>',
+    building:'<rect x="4" y="3" width="16" height="18" rx="1"/><line x1="9" y1="8" x2="9" y2="8"/><line x1="15" y1="8" x2="15" y2="8"/><line x1="9" y1="12" x2="9" y2="12"/><line x1="15" y1="12" x2="15" y2="12"/><path d="M10 21v-4h4v4"/>'
+  };
+  function icon(name, size){
+    size = size || 24;
+    return '<svg viewBox="0 0 24 24" width="'+size+'" height="'+size+'" fill="none" stroke="currentColor" '+
+      'stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">'+(ICON_PATHS[name]||'')+'</svg>';
+  }
+  function hydrateIcons(root){
+    (root||document).querySelectorAll('[data-icon]').forEach(function(s){
+      s.innerHTML = icon(s.getAttribute('data-icon'), parseInt(s.getAttribute('data-size')||'24',10));
+      s.removeAttribute('data-icon');
+    });
+  }
+
+  /* ---------------------------------------------------------- Data ---------------------------------------------------------- */
+  var SERVICES = [
+    {id:'network',icon:'wifi',title:'Network Installation',
+     short:'Fast, reliable Wi-Fi and wired networks set up for your home or business — installed clean and configured right.',
+     long:'We design and install networks that just work. Whether it’s whole-home mesh Wi-Fi that reaches every room, or structured cabling for an office, we handle the layout, the hardware, and the configuration — and we clean up after ourselves.',
+     includes:['Site walk-through and coverage plan','Router, switch, and access-point setup','Wired drops and cable management','Guest networks and device naming'],
+     starting:'from $150'},
+    {id:'cameras',icon:'camera',title:'Security Cameras',
+     short:'Professional-grade camera systems to protect your property — indoor, outdoor, and remote monitoring options available.',
+     long:'Keep an eye on what matters from anywhere. We install professional camera systems sized to your property, set up recording and remote viewing on your phone, and show you exactly how to use it before we leave.',
+     includes:['Indoor and weatherproof outdoor cameras','Local recording (NVR) or cloud options','Phone app setup and remote viewing','Motion alerts and night-vision tuning'],
+     starting:'from $300'},
+    {id:'security',icon:'shield',title:'Network Security',
+     short:'Firewall setup, secure configurations, and network monitoring to keep your data and devices protected.',
+     long:'A network is only as good as it is safe. We lock down your setup with proper firewall rules, secure passwords, segmented guest access, and monitoring so problems get caught early.',
+     includes:['Firewall configuration and hardening','Secure Wi-Fi and password policy','Guest / IoT network isolation','Ongoing monitoring options'],
+     starting:'from $125'},
+    {id:'support',icon:'clock',title:'Maintenance & Support',
+     short:'Ongoing support and troubleshooting so your systems keep running — no call centers, just a real person who knows your setup.',
+     long:'When something goes wrong, you reach the person who installed it — not a call center. We offer check-ups, quick fixes, and honest advice, remotely or on-site across the islands.',
+     includes:['Remote and on-site troubleshooting','Scheduled system check-ups','Firmware and equipment updates','Priority response for members'],
+     starting:'from $75/visit'}
+  ];
+  var REASONS = [
+    'Owner on every job — no subcontractors',
+    'Professional-grade equipment and installations',
+    'Serving homeowners and businesses across the Virgin Islands',
+    'Honest pricing with no hidden fees',
+    'We stand behind every job we complete',
+    'Personal service from someone you can actually reach'
+  ];
+  function serviceById(id){ return SERVICES.filter(function(s){return s.id===id;})[0]; }
+  var EMAIL_RE = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
+
+  /* ---------------------------------------------------------- Helpers ---------------------------------------------------------- */
+  function esc(s){ return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
+  function smoothTo(sel){
+    if(sel==='#top'){ window.scrollTo({top:0,behavior:'smooth'}); return; }
+    var el=document.querySelector(sel);
+    if(el) window.scrollTo({top:el.offsetTop-64,behavior:'smooth'});
+  }
+
+  /* ---------------------------------------------------------- Build services + reasons ---------------------------------------------------------- */
+  var grid = document.querySelector('[data-services-grid]');
+  grid.innerHTML = SERVICES.map(function(s){
+    return '<button class="rs-card" data-open-service="'+s.id+'">'+
+      '<div class="rs-card__well">'+icon(s.icon,24)+'</div>'+
+      '<h3 class="rs-card__title">'+esc(s.title)+'</h3>'+
+      '<p class="rs-card__copy">'+esc(s.short)+'</p>'+
+      '<span class="rs-card__more">Learn more '+icon('arrow-right',15)+'</span>'+
+    '</button>';
+  }).join('');
+
+  document.querySelector('[data-reasons]').innerHTML = REASONS.map(function(r){
+    return '<div class="rs-check"><span class="rs-check__disc" aria-hidden="true">✓</span><span>'+esc(r)+'</span></div>';
+  }).join('');
+
+  /* ---------------------------------------------------------- Contact form ---------------------------------------------------------- */
+  var contactPanel = document.querySelector('[data-contact-panel]');
+  var contact = { name:'', email:'', service:'', message:'', errors:{}, sent:false };
+  var SERVICE_OPTIONS = ['Network Installation','Security Camera System','Network Security','Maintenance & Support','Other / Not Sure'];
+
+  function renderContact(){
+    if(contact.sent){
+      contactPanel.innerHTML =
+        '<div class="rs-sent">'+
+          '<div class="rs-sent__disc">'+icon('check',28)+'</div>'+
+          '<h3 class="rs-sent__h">Message sent — thank you!</h3>'+
+          '<p class="rs-sent__p">We’ve received your note and will reach out to <strong>'+esc(contact.email)+'</strong> shortly. Talk soon!</p>'+
+          '<button class="rs-btn rs-btn--secondary rs-btn--md" data-contact-reset style="color:var(--rs-navy);border-color:var(--rs-border)">Send another</button>'+
+        '</div>';
+      // "Send another" sits on a light panel here; keep it readable
+      contactPanel.querySelector('[data-contact-reset]').style.color='var(--rs-navy)';
+      contactPanel.querySelector('[data-contact-reset]').addEventListener('click',function(){
+        contact={name:'',email:'',service:'',message:'',errors:{},sent:false}; renderContact();
+      });
+      return;
+    }
+    var e = contact.errors;
+    contactPanel.innerHTML =
+      '<h3 class="rs-panel__h">Send Us a Message</h3>'+
+      '<p class="rs-panel__sub">We’ll get back to you personally — usually the same day.</p>'+
+      '<div class="rs-form__row">'+
+        field('name','Your Name','input','John Smith',contact.name,'dark')+
+        field('email','Your Email','input','you@example.com',contact.email,'dark','email')+
+      '</div>'+
+      selectField('service','Service Needed','Select a service...',SERVICE_OPTIONS,contact.service,'dark')+
+      field('message','Message','textarea','Tell us a bit about your project or what you need help with...',contact.message,'dark')+
+      (e.message?errLine(e.message,'dark'):'')+
+      '<button class="rs-btn rs-btn--send rs-btn--full" data-contact-send style="margin-top:8px">Send Message</button>';
+    // errors under name/email
+    injectErr('name', e.name, 'dark');
+    injectErr('email', e.email, 'dark');
+
+    bindField('name'); bindField('email'); bindField('service'); bindField('message');
+    contactPanel.querySelector('[data-contact-send]').addEventListener('click',submitContact);
+  }
+  function injectErr(k, msg, tone){
+    if(!msg) return;
+    var input = contactPanel.querySelector('[data-field="'+k+'"]');
+    if(!input) return;
+    var wrap = input.closest('.rs-field');
+    var p = document.createElement('p'); p.className='rs-err'; p.textContent=msg;
+    wrap.insertAdjacentElement('afterend', p);
+  }
+  function bindField(k){
+    var input = contactPanel.querySelector('[data-field="'+k+'"]');
+    if(!input) return;
+    input.addEventListener('input',function(ev){ contact[k]=ev.target.value; if(contact.errors[k]){contact.errors[k]=undefined;} });
+  }
+  function submitContact(){
+    var errs={};
+    if(!contact.name.trim()) errs.name='Please enter your name.';
+    if(!EMAIL_RE.test(contact.email)) errs.email='Enter a valid email.';
+    if(!contact.message.trim()) errs.message='Let us know how we can help.';
+    contact.errors=errs;
+    if(Object.keys(errs).length===0){ contact.sent=true; }
+    renderContact();
+  }
+
+  /* Field builders (shared by contact + modal) */
+  function field(key,label,as,placeholder,value,tone,type){
+    var toneCls = tone==='light'?' rs-field--light':'';
+    var control = as==='textarea'
+      ? '<textarea class="rs-control" data-field="'+key+'" placeholder="'+esc(placeholder)+'">'+esc(value||'')+'</textarea>'
+      : '<input class="rs-control" data-field="'+key+'" type="'+(type||'text')+'" placeholder="'+esc(placeholder)+'" value="'+esc(value||'')+'"/>';
+    return '<div class="rs-field'+toneCls+'"><label class="rs-label">'+esc(label)+'</label>'+control+'</div>';
+  }
+  function selectField(key,label,placeholder,options,value,tone){
+    var toneCls = tone==='light'?' rs-field--light':'';
+    var opts = '<option value="" '+(value?'':'selected')+' disabled>'+esc(placeholder)+'</option>'+
+      options.map(function(o){return '<option value="'+esc(o)+'"'+(o===value?' selected':'')+'>'+esc(o)+'</option>';}).join('');
+    return '<div class="rs-field'+toneCls+'"><label class="rs-label">'+esc(label)+'</label>'+
+      '<select class="rs-control" data-field="'+key+'">'+opts+'</select></div>';
+  }
+  function errLine(msg,tone){ return '<p class="rs-err'+(tone==='light'?' rs-err--light':'')+'">'+esc(msg)+'</p>'; }
+
+  renderContact();
+
+  /* ---------------------------------------------------------- Overlays (drawer + modal) ---------------------------------------------------------- */
+  var overlayRoot = document.querySelector('[data-overlay-root]');
+  var escHandler = null;
+  function openOverlay(node){
+    overlayRoot.innerHTML='';
+    overlayRoot.appendChild(node);
+    document.body.style.overflow='hidden';
+    escHandler = function(ev){ if(ev.key==='Escape') closeOverlay(); };
+    document.addEventListener('keydown', escHandler);
+  }
+  function closeOverlay(){
+    overlayRoot.innerHTML='';
+    document.body.style.overflow='';
+    if(escHandler){ document.removeEventListener('keydown', escHandler); escHandler=null; }
+  }
+  function overlayShell(align, inner){
+    var ov=document.createElement('div');
+    ov.className='rs-overlay rs-overlay--'+(align==='right'?'right':'center');
+    ov.addEventListener('click',function(ev){ if(ev.target===ov) closeOverlay(); });
+    var stop=document.createElement('div');
+    if(align!=='right') stop.style.display='contents';
+    stop.addEventListener('click',function(ev){ ev.stopPropagation(); });
+    stop.appendChild(inner);
+    ov.appendChild(stop);
+    return ov;
+  }
+
+  /* ---- Service detail drawer ---- */
+  function openDrawer(id){
+    var s=serviceById(id); if(!s) return;
+    var drawer=document.createElement('div');
+    drawer.className='rs-drawer';
+    drawer.innerHTML =
+      '<div class="rs-drawer__head">'+
+        '<button class="rs-iconbtn rs-drawer__close" data-close aria-label="Close">'+icon('x',18)+'</button>'+
+        '<div class="rs-drawer__well">'+icon(s.icon,24)+'</div>'+
+        '<h2 class="rs-drawer__title">'+esc(s.title)+'</h2>'+
+        '<span class="rs-drawer__price">'+esc(s.starting)+'</span>'+
+      '</div>'+
+      '<div class="rs-drawer__body">'+
+        '<p class="rs-drawer__lead">'+esc(s.long)+'</p>'+
+        '<div class="rs-drawer__inclabel">What’s Included</div>'+
+        '<div class="rs-inc">'+s.includes.map(function(inc){
+          return '<div class="rs-inc__row"><span class="rs-inc__disc">'+icon('check',14)+'</span><span class="rs-inc__text">'+esc(inc)+'</span></div>';
+        }).join('')+'</div>'+
+      '</div>'+
+      '<div class="rs-drawer__foot">'+
+        '<button class="rs-btn rs-btn--solid rs-btn--full" data-request>Request This Service</button>'+
+      '</div>';
+    drawer.querySelector('[data-close]').addEventListener('click',closeOverlay);
+    drawer.querySelector('[data-request]').addEventListener('click',function(){ openQuote(s.id); });
+    openOverlay(overlayShell('right',drawer));
+  }
+
+  /* ---- Multi-step quote modal ---- */
+  function openQuote(initialService){
+    var state = {
+      step:0,
+      services: initialService?[initialService]:[],
+      property:'', timeframe:'', location:'',
+      name:'', email:'', phone:'',
+      touched:false,
+      ref:'RSVI-'+Math.floor(1000+Math.random()*9000)
+    };
+    var host=document.createElement('div');
+    host.className='rs-modal';
+    openOverlay(overlayShell('center',host));
+    renderModal();
+
+    function canNext(){
+      if(state.step===0) return state.services.length>0;
+      if(state.step===1) return !!state.property;
+      if(state.step===2) return state.name.trim() && EMAIL_RE.test(state.email);
+      return true;
+    }
+    function next(){
+      if(state.step===2){ state.touched=false; state.step=3; renderModal(); return; }
+      if(!canNext()){ state.touched=true; renderModal(); return; }
+      state.touched=false; state.step=Math.min(state.step+1,3); renderModal();
+    }
+    function back(){ state.step=Math.max(state.step-1,0); state.touched=false; renderModal(); }
+
+    function renderModal(){
+      var STEPS=['Service','Details','Contact','Done'];
+      var body='';
+      if(state.step===0){
+        body='<p class="rs-modal__lead">What can we help you with? Pick one or more.</p>'+
+          '<div class="rs-pick-grid">'+SERVICES.map(function(s){
+            var on=state.services.indexOf(s.id)>-1;
+            return '<button class="rs-pick'+(on?' is-on':'')+'" data-toggle="'+s.id+'">'+
+              '<span class="rs-pick__icon">'+icon(s.icon,20)+'</span>'+
+              '<span class="rs-pick__label">'+esc(s.title)+'</span></button>';
+          }).join('')+'</div>'+
+          (state.touched&&!canNext()?'<p class="rs-err--light" style="margin:14px 0 0">Please select at least one service.</p>':'');
+      } else if(state.step===1){
+        body='<p class="rs-modal__lead">Tell us a little about the property.</p>'+
+          '<div style="display:flex;gap:12px;margin-bottom:18px">'+
+            propBtn('Home','home')+propBtn('Business','building')+
+          '</div>'+
+          selectField('timeframe','Timeframe','When do you need this?',['As soon as possible','Within a few weeks','Just planning ahead'],state.timeframe,'light')+
+          field('location','Location (island / town)','input','e.g. St. Thomas',state.location,'light')+
+          (state.touched&&!canNext()?'<p class="rs-err--light" style="margin:4px 0 0">Please choose Home or Business.</p>':'');
+      } else if(state.step===2){
+        body='<p class="rs-modal__lead">Where should we send your quote?</p>'+
+          field('name','Your Name','input','John Smith',state.name,'light')+
+          field('email','Your Email','input','you@example.com',state.email,'light','email')+
+          field('phone','Phone (optional)','input','340-555-0100',state.phone,'light')+
+          (state.touched&&!canNext()?'<p class="rs-err--light" style="margin:4px 0 0">Enter your name and a valid email.</p>':'');
+      } else {
+        var first=(state.name.split(' ')[0])||'there';
+        var svcNames=state.services.map(function(id){var s=serviceById(id);return s?s.title:'';}).filter(Boolean).join(', ');
+        body='<div class="rs-done">'+
+          '<div class="rs-done__disc">'+icon('check',30)+'</div>'+
+          '<h3 class="rs-done__h">Thanks, '+esc(first)+'!</h3>'+
+          '<p class="rs-done__p">We’ve got your request and will reach out personally — usually the same day. No call center, just a real person.</p>'+
+          '<div class="rs-summary">'+
+            '<div class="rs-summary__row"><span class="rs-summary__k">Reference</span><span class="rs-summary__v rs-summary__v--ref">'+esc(state.ref)+'</span></div>'+
+            '<div class="rs-summary__row"><span class="rs-summary__k">Services</span><span class="rs-summary__v">'+esc(svcNames)+'</span></div>'+
+          '</div>'+
+        '</div>';
+      }
+
+      var foot;
+      var backBtn = (state.step>0&&state.step<3)?
+        '<button class="rs-backbtn" data-back>'+icon('arrow-left',16)+' Back</button>':'<span></span>';
+      if(state.step<2) foot=backBtn+'<button class="rs-btn rs-btn--solid rs-btn--md" data-next>Continue</button>';
+      else if(state.step===2) foot=backBtn+'<button class="rs-btn rs-btn--send rs-btn--md" data-next>Submit Request</button>';
+      else foot='<span></span><button class="rs-btn rs-btn--solid rs-btn--md" data-done style="margin-left:auto">Done</button>';
+
+      host.innerHTML =
+        '<div class="rs-modal__head">'+
+          '<button class="rs-iconbtn rs-modal__close" data-close aria-label="Close">'+icon('x',16)+'</button>'+
+          '<div class="rs-modal__title">'+(state.step<3?'Get a Free Quote':'Request Received')+'</div>'+
+          '<div class="rs-steps">'+STEPS.map(function(l,i){
+            return '<div class="rs-step'+(i<=state.step?' is-on':'')+'"><div class="rs-step__bar"></div><span class="rs-step__label">'+l+'</span></div>';
+          }).join('')+'</div>'+
+        '</div>'+
+        '<div class="rs-modal__body">'+body+'</div>'+
+        '<div class="rs-modal__foot">'+foot+'</div>';
+
+      // wiring
+      host.querySelector('[data-close]').addEventListener('click',closeOverlay);
+      var b=host.querySelector('[data-back]'); if(b) b.addEventListener('click',back);
+      var n=host.querySelector('[data-next]'); if(n) n.addEventListener('click',next);
+      var d=host.querySelector('[data-done]'); if(d) d.addEventListener('click',closeOverlay);
+
+      host.querySelectorAll('[data-toggle]').forEach(function(btn){
+        btn.addEventListener('click',function(){
+          var id=btn.getAttribute('data-toggle');
+          var i=state.services.indexOf(id);
+          if(i>-1) state.services.splice(i,1); else state.services.push(id);
+          renderModal();
+        });
+      });
+      host.querySelectorAll('[data-prop]').forEach(function(btn){
+        btn.addEventListener('click',function(){ state.property=btn.getAttribute('data-prop'); renderModal(); });
+      });
+      // live-bind text/select fields without re-render (preserve focus)
+      ['location','name','email','phone','timeframe'].forEach(function(k){
+        var input=host.querySelector('[data-field="'+k+'"]');
+        if(input) input.addEventListener('input',function(ev){ state[k]=ev.target.value; });
+      });
+    }
+    function propBtn(label,ic){
+      var on=state.property===label;
+      return '<button class="rs-prop'+(on?' is-on':'')+'" data-prop="'+label+'">'+icon(ic,26)+'<span class="rs-prop__label">'+label+'</span></button>';
+    }
+  }
+
+  /* ---------------------------------------------------------- Global wiring ---------------------------------------------------------- */
+  hydrateIcons(document);
+
+  document.addEventListener('click',function(ev){
+    var scroll = ev.target.closest('[data-scroll]');
+    if(scroll){ ev.preventDefault(); closeMobile(); smoothTo(scroll.getAttribute('data-scroll')); return; }
+    var quote = ev.target.closest('[data-quote]');
+    if(quote){ closeMobile(); openQuote(null); return; }
+    var open = ev.target.closest('[data-open-service]');
+    if(open){ openDrawer(open.getAttribute('data-open-service')); return; }
+    var top = ev.target.closest('[data-totop]');
+    if(top){ window.scrollTo({top:0,behavior:'smooth'}); return; }
+  });
+
+  /* Mobile menu */
+  var mobileMenu=document.querySelector('[data-mobile-menu]');
+  var mobileBtn=document.querySelector('[data-mobile-toggle]');
+  function renderMobileBtn(open){ mobileBtn.innerHTML=icon(open?'x':'menu',24); mobileBtn.setAttribute('aria-expanded',open?'true':'false'); }
+  function closeMobile(){ mobileMenu.classList.remove('is-open'); renderMobileBtn(false); }
+  renderMobileBtn(false);
+  mobileBtn.addEventListener('click',function(){
+    var open=!mobileMenu.classList.contains('is-open');
+    mobileMenu.classList.toggle('is-open',open); renderMobileBtn(open);
+  });
+
+  /* Scroll-aware nav + back-to-top */
+  var navLinks=Array.prototype.slice.call(document.querySelectorAll('.rs-nav__link[data-section]'));
+  var totop=document.querySelector('[data-totop]');
+  var IDS=['services','about','contact'];
+  function onScroll(){
+    totop.classList.toggle('is-visible', window.scrollY>600);
+    var y=window.scrollY+120, cur='top';
+    IDS.forEach(function(id){ var el=document.getElementById(id); if(el && el.offsetTop<=y) cur=id; });
+    navLinks.forEach(function(a){ a.classList.toggle('is-active', a.getAttribute('data-section')===cur); });
+  }
+  window.addEventListener('scroll',onScroll,{passive:true});
+  onScroll();
+})();
+</script>
+</body>
+</html>
