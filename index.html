@@ -1,6 +1,817 @@
 <!DOCTYPE html>
 <html lang="en">
+<head><!DOCTYPE html>
+<html lang="en">
 <head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Reliable Solutions VI — Network &amp; Security</title>
+<meta name="description" content="Professional network services and security camera solutions for homeowners and businesses across the U.S. Virgin Islands."/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@600;700&display=swap" rel="stylesheet"/>
+<style>
+/* ============================================================
+   Reliable Solutions VI — Design System tokens
+   ============================================================ */
+:root{
+  /* Navy family */
+  --rs-navy:#0d3b6e; --rs-navy-deep:#071e38; --rs-blue:#1a5fa8;
+  /* Sky accent */
+  --rs-sky:#7ec8f4; --rs-sky-hi:#9dd4f7;
+  /* Surfaces */
+  --rs-white:#ffffff; --rs-surface-1:#f7fafd; --rs-surface-tint:#e6f1fb; --rs-border:#d0e4f5;
+  /* Ink */
+  --rs-ink:#1a2a3a; --rs-ink-muted:#4a6280;
+  /* On-dark alphas */
+  --rs-on-dark-1:rgba(255,255,255,0.92); --rs-on-dark-2:rgba(255,255,255,0.72);
+  --rs-on-dark-3:rgba(255,255,255,0.55); --rs-on-dark-faint:rgba(255,255,255,0.35);
+  /* Sky alphas / glass */
+  --rs-sky-a15:rgba(126,200,244,0.15); --rs-sky-a30:rgba(126,200,244,0.30);
+  --rs-glass-fill:rgba(255,255,255,0.08); --rs-glass-border:rgba(255,255,255,0.15);
+  /* Type */
+  --rs-font-display:'Barlow Condensed','Arial Narrow',sans-serif;
+  --rs-font-sans:'Barlow',system-ui,-apple-system,sans-serif;
+  /* Radius */
+  --rs-radius-sm:7px; --rs-radius-md:8px; --rs-radius-lg:10px; --rs-radius-xl:12px;
+  --rs-radius-2xl:14px; --rs-radius-pill:20px;
+}
+
+/* ============================================================ Base ============================================================ */
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{font-family:var(--rs-font-sans);color:var(--rs-ink);background:var(--rs-white)}
+h1,h2,h3,p{margin:0}
+a{color:var(--rs-blue)}
+a:hover{color:var(--rs-navy)}
+button{font-family:inherit}
+button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid var(--rs-sky);outline-offset:2px}
+
+@keyframes rsFade{from{opacity:0}to{opacity:1}}
+@keyframes rsPop{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:scale(1)}}
+@keyframes rsSlideIn{from{transform:translateX(30px);opacity:.4}to{transform:translateX(0);opacity:1}}
+
+/* ============================================================ Nav ============================================================ */
+.rs-nav{background:var(--rs-navy);padding:14px 40px;position:sticky;top:0;z-index:90;
+  display:flex;align-items:center;justify-content:space-between}
+.rs-nav__logo{display:flex;align-items:center}
+.rs-nav__logo svg{height:38px;width:auto;display:block}
+.rs-nav__links{display:flex;gap:28px;align-items:center}
+.rs-nav__link{color:var(--rs-on-dark-2);text-decoration:none;font-size:14px;font-weight:500;
+  padding-bottom:3px;border-bottom:2px solid transparent;transition:color .2s,border-color .2s}
+.rs-nav__link:hover{color:var(--rs-white)}
+.rs-nav__link.is-active{color:var(--rs-white);border-bottom-color:var(--rs-sky)}
+.rs-nav__mobile-btn{display:none;background:transparent;border:none;cursor:pointer;color:var(--rs-white);padding:4px}
+.rs-nav__mobile-menu{position:absolute;top:100%;left:0;right:0;background:var(--rs-navy);
+  border-top:1px solid var(--rs-glass-border);padding:10px 40px 20px;flex-direction:column;gap:4px;z-index:90;display:none}
+.rs-nav__mobile-menu.is-open{display:flex}
+.rs-nav__mobile-link{color:var(--rs-on-dark-1);text-decoration:none;font-size:16px;font-weight:500;padding:12px 0}
+
+/* ============================================================ Buttons ============================================================ */
+.rs-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  font-family:var(--rs-font-sans);font-weight:600;text-decoration:none;border:none;cursor:pointer;
+  border-radius:var(--rs-radius-sm);transition:background .2s,color .2s,border-color .2s;white-space:nowrap}
+.rs-btn--sm{font-size:13px;padding:9px 18px}
+.rs-btn--md{font-size:15px;padding:14px 32px}
+.rs-btn--full{width:100%}
+.rs-btn--primary{background:var(--rs-white);color:var(--rs-navy)}
+.rs-btn--primary:hover{background:var(--rs-surface-tint)}
+.rs-btn--secondary{background:transparent;color:var(--rs-white);border:1.5px solid rgba(255,255,255,0.4)}
+.rs-btn--secondary:hover{background:rgba(255,255,255,0.08)}
+.rs-btn--send{background:var(--rs-sky);color:var(--rs-navy);border-radius:var(--rs-radius-md);font-weight:700;letter-spacing:.3px}
+.rs-btn--send:hover{background:var(--rs-sky-hi)}
+.rs-btn--solid{background:var(--rs-navy);color:var(--rs-white)}
+.rs-btn--solid:hover{background:var(--rs-blue)}
+
+/* ============================================================ Hero ============================================================ */
+.rs-hero{background:var(--rs-navy);
+  background-image:radial-gradient(circle at 80% 50%,#1a5fa8 0%,#0d3b6e 60%);
+  padding:80px 40px 90px;text-align:center;overflow:hidden}
+.rs-hero__mark{width:90px;height:90px;border-radius:50%;background:rgba(255,255,255,0.08);
+  display:flex;align-items:center;justify-content:center;margin:0 auto 28px}
+.rs-hero__mark svg{width:90px;height:90px}
+.rs-tag{display:inline-block;background:var(--rs-sky-a15);border:1px solid var(--rs-sky-a30);color:var(--rs-sky);
+  font-family:var(--rs-font-sans);font-size:11px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;
+  padding:6px 16px;border-radius:var(--rs-radius-pill)}
+.rs-hero__h1{font-family:var(--rs-font-display);font-size:56px;font-weight:700;color:var(--rs-white);
+  line-height:1.1;margin:24px 0 18px}
+.rs-hero__h1 span{color:var(--rs-sky)}
+.rs-hero__sub{font-size:17px;color:var(--rs-on-dark-2);max-width:560px;margin:0 auto 36px;line-height:1.65}
+.rs-hero__cta{display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
+
+/* ============================================================ Sections ============================================================ */
+.rs-section{padding:72px 40px;scroll-margin-top:64px}
+.rs-section--wash{background:var(--rs-surface-1)}
+.rs-section--dark{background:var(--rs-navy);text-align:center}
+.rs-container{max-width:1000px;margin:0 auto}
+.rs-eyebrow{font-family:var(--rs-font-sans);font-size:11px;font-weight:600;letter-spacing:2px;
+  text-transform:uppercase;color:var(--rs-blue);margin-bottom:8px}
+.rs-title{font-family:var(--rs-font-display);font-size:36px;font-weight:700;color:var(--rs-navy);line-height:1.15}
+
+/* Services */
+.rs-services__lead{color:var(--rs-ink-muted);font-size:15px;margin:8px 0 36px}
+.rs-services__grid{display:grid;gap:22px;grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+.rs-card{text-align:left;cursor:pointer;font:inherit;background:var(--rs-white);border-radius:var(--rs-radius-xl);
+  padding:30px 26px;border:0.5px solid var(--rs-border);box-shadow:none;
+  transition:transform .15s,box-shadow .15s,border-color .15s}
+.rs-card:hover{border-color:var(--rs-sky);box-shadow:0 6px 20px rgba(13,59,110,0.10);transform:translateY(-2px)}
+.rs-card__well{width:48px;height:48px;background:var(--rs-surface-tint);border-radius:var(--rs-radius-lg);
+  display:flex;align-items:center;justify-content:center;margin-bottom:18px;color:var(--rs-blue)}
+.rs-card__title{font-family:var(--rs-font-sans);font-size:16px;font-weight:600;color:var(--rs-navy);margin:0 0 10px}
+.rs-card__copy{font-size:14px;line-height:1.65;color:var(--rs-ink-muted);margin:0 0 14px}
+.rs-card__more{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:600;color:var(--rs-blue)}
+
+/* About */
+.rs-about__grid{display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:center}
+.rs-about__p{font-size:15px;color:var(--rs-ink-muted);line-height:1.75;margin:0 0 14px}
+.rs-about__stats{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:28px}
+.rs-stat{background:var(--rs-surface-tint);border-radius:var(--rs-radius-lg);padding:18px;text-align:center}
+.rs-stat__value{font-family:var(--rs-font-display);font-size:30px;font-weight:700;line-height:1.1;color:var(--rs-navy)}
+.rs-stat__label{font-size:12px;color:var(--rs-ink-muted);margin-top:3px}
+.rs-why{background:var(--rs-navy);border-radius:14px;padding:40px 36px}
+.rs-why__h{font-family:var(--rs-font-display);font-size:24px;font-weight:700;color:var(--rs-white);margin:0 0 22px}
+.rs-check{display:flex;gap:12px;align-items:flex-start;margin-bottom:16px;font-size:14px;line-height:1.55;color:var(--rs-on-dark-1)}
+.rs-check__disc{width:20px;height:20px;min-width:20px;background:rgba(126,200,244,0.18);border-radius:50%;
+  display:flex;align-items:center;justify-content:center;margin-top:1px;font-size:11px;color:var(--rs-sky);font-weight:700}
+
+/* Contact */
+.rs-contact__h{font-family:var(--rs-font-display);font-size:36px;font-weight:700;color:var(--rs-white);margin:0 0 10px}
+.rs-contact__sub{font-size:15px;color:var(--rs-on-dark-3);margin:0 0 36px}
+.rs-contact__chips{display:flex;gap:20px;justify-content:center;flex-wrap:wrap;margin-bottom:36px}
+.rs-chip{display:flex;align-items:center;gap:12px;background:var(--rs-glass-fill);border:1px solid var(--rs-glass-border);
+  border-radius:var(--rs-radius-lg);padding:16px 28px;text-decoration:none;transition:background .2s;cursor:pointer}
+.rs-chip:hover{background:rgba(255,255,255,0.14)}
+.rs-chip__icon{display:flex;color:var(--rs-sky);flex-shrink:0}
+.rs-chip__text{font-size:15px;color:var(--rs-white);font-weight:500}
+.rs-panel{background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:14px;
+  padding:36px;max-width:560px;margin:0 auto;text-align:left}
+.rs-panel__h{font-family:var(--rs-font-display);font-size:22px;font-weight:700;color:var(--rs-white);margin:0 0 6px}
+.rs-panel__sub{font-size:13px;color:var(--rs-on-dark-faint);margin:0 0 24px}
+.rs-form__row{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.rs-contact__foot{margin-top:28px;display:flex;flex-direction:column;align-items:center;gap:6px}
+.rs-contact__foot a{color:var(--rs-sky);font-size:14px;font-weight:600;text-decoration:none;letter-spacing:.3px}
+.rs-contact__foot p{color:var(--rs-on-dark-faint);font-size:13px}
+
+/* Fields */
+.rs-field{margin-bottom:16px}
+.rs-label{display:block;font-family:var(--rs-font-sans);font-size:11px;font-weight:600;letter-spacing:.8px;
+  text-transform:uppercase;margin-bottom:6px;color:var(--rs-on-dark-3)}
+.rs-field--light .rs-label{color:var(--rs-ink-muted)}
+.rs-control{width:100%;box-sizing:border-box;font-family:var(--rs-font-sans);font-size:14px;padding:11px 14px;
+  border-radius:var(--rs-radius-md);outline:none;transition:border-color .15s,background .15s;
+  background:var(--rs-glass-fill);color:var(--rs-white);border:1px solid var(--rs-glass-border)}
+.rs-control::placeholder{color:rgba(255,255,255,0.4)}
+.rs-control:focus{background:rgba(255,255,255,0.11);border-color:rgba(126,200,244,0.6)}
+textarea.rs-control{height:110px;resize:vertical}
+select.rs-control{appearance:none;-webkit-appearance:none;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>");
+  background-repeat:no-repeat;background-position:right 12px center;padding-right:36px}
+.rs-field--light .rs-control{background:var(--rs-white);color:var(--rs-ink);border:1px solid var(--rs-border)}
+.rs-field--light .rs-control::placeholder{color:#9bb0c6}
+.rs-field--light .rs-control:focus{background:var(--rs-white);border-color:var(--rs-blue)}
+.rs-field--light select.rs-control{
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%231a5fa8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>")}
+.rs-err{color:#ff9b8a;font-size:12px;margin:-8px 0 12px}
+.rs-err--light{color:#c0392b;font-size:12.5px;margin:14px 0 0}
+
+/* Success (contact) */
+.rs-sent{text-align:center;padding:14px 0}
+.rs-sent__disc{width:60px;height:60px;border-radius:50%;background:var(--rs-sky-a15);border:1px solid var(--rs-sky-a30);
+  color:var(--rs-sky);display:flex;align-items:center;justify-content:center;margin:0 auto 18px}
+.rs-sent__h{font-family:var(--rs-font-display);font-size:24px;font-weight:700;color:var(--rs-white);margin:0 0 8px}
+.rs-sent__p{font-size:14px;color:var(--rs-on-dark-2);line-height:1.65;margin:0 auto 20px;max-width:380px}
+.rs-sent__p strong{color:var(--rs-white)}
+
+/* Footer */
+.rs-footer{background:var(--rs-navy-deep);padding:20px 40px;text-align:center;font-size:12px;color:var(--rs-on-dark-faint)}
+.rs-footer a{color:rgba(255,255,255,0.5);text-decoration:none}
+
+/* Back to top */
+.rs-totop{position:fixed;bottom:24px;right:24px;z-index:80;width:46px;height:46px;border-radius:50%;
+  background:var(--rs-navy);color:var(--rs-white);border:1px solid var(--rs-glass-border);cursor:pointer;
+  display:flex;align-items:center;justify-content:center;box-shadow:0 6px 20px rgba(13,59,110,0.25);
+  opacity:0;transform:translateY(12px);pointer-events:none;transition:opacity .2s,transform .2s}
+.rs-totop.is-visible{opacity:1;transform:translateY(0);pointer-events:auto}
+
+/* ============================================================ Overlays ============================================================ */
+.rs-overlay{position:fixed;inset:0;z-index:200;background:rgba(7,30,56,0.55);display:flex;animation:rsFade .18s ease}
+.rs-overlay--center{align-items:center;justify-content:center;padding:20px}
+.rs-overlay--right{align-items:stretch;justify-content:flex-end;padding:0}
+
+/* Service drawer */
+.rs-drawer{width:min(440px,92vw);height:100%;background:var(--rs-white);display:flex;flex-direction:column;
+  animation:rsSlideIn .22s ease;box-shadow:-20px 0 60px rgba(7,30,56,0.25)}
+.rs-drawer__head{background:var(--rs-navy);padding:26px 28px;position:relative}
+.rs-iconbtn{position:absolute;background:var(--rs-glass-fill);border:1px solid var(--rs-glass-border);
+  border-radius:8px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--rs-white)}
+.rs-drawer__close{top:18px;right:18px;width:34px;height:34px}
+.rs-drawer__well{width:52px;height:52px;background:var(--rs-sky-a15);border:1px solid var(--rs-sky-a30);
+  border-radius:12px;display:flex;align-items:center;justify-content:center;color:var(--rs-sky);margin-bottom:16px}
+.rs-drawer__title{font-family:var(--rs-font-display);font-size:28px;font-weight:700;color:var(--rs-white);margin:0 0 6px}
+.rs-drawer__price{font-size:13px;font-weight:600;letter-spacing:.5px;color:var(--rs-sky)}
+.rs-drawer__body{padding:26px 28px;overflow-y:auto;flex:1}
+.rs-drawer__lead{font-size:15px;line-height:1.75;color:var(--rs-ink-muted);margin:0 0 24px}
+.rs-drawer__inclabel{font-size:11px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--rs-blue);margin-bottom:14px}
+.rs-inc{display:flex;flex-direction:column;gap:12px}
+.rs-inc__row{display:flex;gap:12px;align-items:flex-start}
+.rs-inc__disc{width:22px;height:22px;min-width:22px;border-radius:50%;background:var(--rs-surface-tint);color:var(--rs-blue);
+  display:flex;align-items:center;justify-content:center;margin-top:1px}
+.rs-inc__text{font-size:14px;line-height:1.5;color:var(--rs-ink)}
+.rs-drawer__foot{padding:18px 28px;border-top:0.5px solid var(--rs-border);display:flex;gap:12px}
+
+/* Quote modal */
+.rs-modal{width:min(560px,94vw);max-height:90vh;background:var(--rs-white);border-radius:16px;overflow:hidden;
+  display:flex;flex-direction:column;animation:rsPop .2s ease}
+.rs-modal__head{background:var(--rs-navy);padding:22px 28px 0;position:relative}
+.rs-modal__close{top:16px;right:16px;width:32px;height:32px}
+.rs-modal__title{font-family:var(--rs-font-display);font-size:24px;font-weight:700;color:var(--rs-white)}
+.rs-steps{display:flex;gap:6px;padding:18px 0 0}
+.rs-step{flex:1;display:flex;flex-direction:column;gap:6px;padding-bottom:14px}
+.rs-step__bar{height:3px;border-radius:2px;background:rgba(255,255,255,0.18);transition:background .2s}
+.rs-step.is-on .rs-step__bar{background:var(--rs-sky)}
+.rs-step__label{font-size:10px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;color:var(--rs-on-dark-faint)}
+.rs-step.is-on .rs-step__label{color:var(--rs-sky)}
+.rs-modal__body{padding:26px 28px;overflow-y:auto}
+.rs-modal__lead{margin:0 0 18px;color:var(--rs-ink-muted);font-size:14px}
+.rs-modal__foot{padding:16px 28px;border-top:0.5px solid var(--rs-border);display:flex;justify-content:space-between;gap:12px;align-items:center}
+.rs-backbtn{background:transparent;border:none;cursor:pointer;font:inherit;display:inline-flex;align-items:center;gap:6px;
+  color:var(--rs-ink-muted);font-size:14px;font-weight:600}
+.rs-pick-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.rs-pick{text-align:left;cursor:pointer;font:inherit;display:flex;gap:12px;align-items:center;background:var(--rs-white);
+  border:1.5px solid var(--rs-border);border-radius:10px;padding:14px;transition:border-color .15s,background .15s}
+.rs-pick.is-on{background:var(--rs-surface-tint);border-color:var(--rs-blue)}
+.rs-pick__icon{color:var(--rs-ink-muted)}
+.rs-pick.is-on .rs-pick__icon{color:var(--rs-blue)}
+.rs-pick__label{font-size:13.5px;font-weight:600;color:var(--rs-navy);line-height:1.3}
+.rs-prop{flex:1;cursor:pointer;font:inherit;display:flex;flex-direction:column;align-items:center;gap:8px;
+  background:var(--rs-white);border:1.5px solid var(--rs-border);border-radius:12px;padding:20px 12px;
+  color:var(--rs-ink-muted);transition:border-color .15s,background .15s}
+.rs-prop.is-on{background:var(--rs-surface-tint);border-color:var(--rs-blue);color:var(--rs-blue)}
+.rs-prop__label{font-size:14px;font-weight:600;color:var(--rs-navy)}
+.rs-done{text-align:center;padding:10px 0 6px}
+.rs-done__disc{width:64px;height:64px;border-radius:50%;background:var(--rs-surface-tint);color:var(--rs-blue);
+  display:flex;align-items:center;justify-content:center;margin:0 auto 18px}
+.rs-done__h{font-family:var(--rs-font-display);font-size:24px;font-weight:700;color:var(--rs-navy);margin:0 0 8px}
+.rs-done__p{font-size:14.5px;color:var(--rs-ink-muted);line-height:1.65;margin:0 auto 20px;max-width:380px}
+.rs-summary{background:var(--rs-surface-1);border:0.5px solid var(--rs-border);border-radius:12px;padding:16px 18px;
+  text-align:left;max-width:400px;margin:0 auto}
+.rs-summary__row{display:flex;justify-content:space-between;gap:12px;margin-bottom:8px}
+.rs-summary__row:last-child{margin-bottom:0}
+.rs-summary__k{font-size:12px;color:var(--rs-ink-muted)}
+.rs-summary__v{font-size:13px;font-weight:600;color:var(--rs-navy);text-align:right}
+.rs-summary__v--ref{font-weight:700;font-family:var(--rs-font-display)}
+
+/* ============================================================ Responsive ============================================================ */
+@media(max-width:760px){
+  .rs-nav__links{display:none}
+  .rs-nav__mobile-btn{display:flex}
+  .rs-about__grid{grid-template-columns:1fr;gap:32px}
+  .rs-nav{padding:14px 20px}
+  .rs-section,.rs-hero{padding-left:20px;padding-right:20px}
+  .rs-hero__h1{font-size:38px}
+  .rs-form__row{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<!-- ============================================================ NAV ============================================================ -->
+<nav class="rs-nav">
+  <a href="#top" class="rs-nav__logo" data-scroll="#top" aria-label="Reliable Solutions VI — home">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 340 92" role="img" aria-label="Reliable Solutions VI">
+      <g transform="translate(8,6)">
+        <polygon points="38,2 70,20 70,56 38,74 6,56 6,20" fill="none" stroke="rgba(126,200,244,0.18)" stroke-width="1.2"></polygon>
+        <circle cx="38" cy="38" r="22" fill="none" stroke="rgba(126,200,244,0.12)" stroke-width="1"></circle>
+        <line x1="38" y1="2" x2="38" y2="74" stroke="rgba(126,200,244,0.08)" stroke-width="1"></line>
+        <line x1="6" y1="20" x2="70" y2="56" stroke="rgba(126,200,244,0.08)" stroke-width="1"></line>
+        <line x1="70" y1="20" x2="6" y2="56" stroke="rgba(126,200,244,0.08)" stroke-width="1"></line>
+        <circle cx="38" cy="38" r="9" fill="#7ec8f4"></circle>
+        <circle cx="38" cy="38" r="15" fill="none" stroke="rgba(126,200,244,0.35)" stroke-width="1.2"></circle>
+        <circle cx="38" cy="2" r="5" fill="#ffffff" opacity="0.95"></circle>
+        <circle cx="70" cy="20" r="5" fill="#ffffff" opacity="0.95"></circle>
+        <circle cx="70" cy="56" r="5" fill="#ffffff" opacity="0.95"></circle>
+        <circle cx="38" cy="74" r="5" fill="#ffffff" opacity="0.95"></circle>
+        <circle cx="6" cy="56" r="5" fill="#ffffff" opacity="0.95"></circle>
+        <circle cx="6" cy="20" r="5" fill="#ffffff" opacity="0.95"></circle>
+        <line x1="38" y1="7" x2="38" y2="23" stroke="#7ec8f4" stroke-width="1.6" stroke-linecap="round"></line>
+        <line x1="65.2" y1="23" x2="51.5" y2="31" stroke="#7ec8f4" stroke-width="1.6" stroke-linecap="round"></line>
+        <line x1="65.2" y1="53" x2="51.5" y2="45" stroke="#7ec8f4" stroke-width="1.6" stroke-linecap="round"></line>
+        <line x1="38" y1="69" x2="38" y2="53" stroke="#7ec8f4" stroke-width="1.6" stroke-linecap="round"></line>
+        <line x1="10.8" y1="53" x2="24.5" y2="45" stroke="#7ec8f4" stroke-width="1.6" stroke-linecap="round"></line>
+        <line x1="10.8" y1="23" x2="24.5" y2="31" stroke="#7ec8f4" stroke-width="1.6" stroke-linecap="round"></line>
+        <rect x="33.5" y="-2.5" width="9" height="7" rx="2" fill="none" stroke="rgba(126,200,244,0.85)" stroke-width="1.1"></rect>
+        <rect x="65.5" y="15.5" width="9" height="7" rx="2" fill="none" stroke="rgba(126,200,244,0.85)" stroke-width="1.1"></rect>
+        <rect x="2" y="15.5" width="9" height="7" rx="2" fill="none" stroke="rgba(126,200,244,0.85)" stroke-width="1.1"></rect>
+        <rect x="65.5" y="51.5" width="9" height="7" rx="2" fill="none" stroke="rgba(126,200,244,0.85)" stroke-width="1.1"></rect>
+        <rect x="2" y="51.5" width="9" height="7" rx="2" fill="none" stroke="rgba(126,200,244,0.85)" stroke-width="1.1"></rect>
+        <rect x="33.5" y="69.5" width="9" height="7" rx="2" fill="none" stroke="rgba(126,200,244,0.85)" stroke-width="1.1"></rect>
+      </g>
+      <text x="102" y="43" font-family="'Barlow Condensed', sans-serif" font-size="33" font-weight="700" fill="#ffffff" letter-spacing="1">RELIABLE</text>
+      <text x="102" y="70" font-family="'Barlow Condensed', sans-serif" font-size="33" font-weight="700" fill="#7ec8f4" letter-spacing="1">SOLUTIONS VI</text>
+      <text x="103" y="85" font-family="'Barlow', sans-serif" font-size="9.5" font-weight="500" fill="rgba(255,255,255,0.38)" letter-spacing="2.8">NETWORK  ·  SECURITY  ·  SOLUTIONS</text>
+    </svg>
+  </a>
+
+  <div class="rs-nav__links">
+    <a href="#services" class="rs-nav__link" data-scroll="#services" data-section="services">Services</a>
+    <a href="#about" class="rs-nav__link" data-scroll="#about" data-section="about">About</a>
+    <a href="#contact" class="rs-nav__link" data-scroll="#contact" data-section="contact">Contact</a>
+    <button class="rs-btn rs-btn--send rs-btn--sm" data-quote>Get a Quote</button>
+  </div>
+
+  <button class="rs-nav__mobile-btn" data-mobile-toggle aria-label="Menu" aria-expanded="false"></button>
+
+  <div class="rs-nav__mobile-menu" data-mobile-menu>
+    <a href="#services" class="rs-nav__mobile-link" data-scroll="#services">Services</a>
+    <a href="#about" class="rs-nav__mobile-link" data-scroll="#about">About</a>
+    <a href="#contact" class="rs-nav__mobile-link" data-scroll="#contact">Contact</a>
+    <div style="margin-top:8px"><button class="rs-btn rs-btn--send rs-btn--full" data-quote>Get a Quote</button></div>
+  </div>
+</nav>
+
+<!-- ============================================================ HERO ============================================================ -->
+<header id="top" class="rs-hero">
+  <div class="rs-hero__mark">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 84 84" role="img" aria-label="Reliable Solutions VI mark">
+      <g transform="translate(42,42)">
+        <polygon points="0,-26 22.5,-13 22.5,13 0,26 -22.5,13 -22.5,-13" fill="none" stroke="rgba(126,200,244,0.3)" stroke-width="1.2"></polygon>
+        <circle cx="0" cy="0" r="18" fill="none" stroke="rgba(126,200,244,0.15)" stroke-width="1"></circle>
+        <line x1="0" y1="-26" x2="0" y2="26" stroke="rgba(126,200,244,0.1)" stroke-width="1"></line>
+        <line x1="-22.5" y1="-13" x2="22.5" y2="13" stroke="rgba(126,200,244,0.1)" stroke-width="1"></line>
+        <line x1="22.5" y1="-13" x2="-22.5" y2="13" stroke="rgba(126,200,244,0.1)" stroke-width="1"></line>
+        <circle cx="0" cy="0" r="7" fill="#7ec8f4"></circle>
+        <circle cx="0" cy="0" r="12" fill="none" stroke="rgba(126,200,244,0.4)" stroke-width="1.2"></circle>
+        <line x1="0" y1="-22" x2="0" y2="-12" stroke="#7ec8f4" stroke-width="1.5" stroke-linecap="round"></line>
+        <line x1="19.5" y1="-11" x2="10.4" y2="-6" stroke="#7ec8f4" stroke-width="1.5" stroke-linecap="round"></line>
+        <line x1="19.5" y1="11" x2="10.4" y2="6" stroke="#7ec8f4" stroke-width="1.5" stroke-linecap="round"></line>
+        <line x1="0" y1="22" x2="0" y2="12" stroke="#7ec8f4" stroke-width="1.5" stroke-linecap="round"></line>
+        <line x1="-19.5" y1="11" x2="-10.4" y2="6" stroke="#7ec8f4" stroke-width="1.5" stroke-linecap="round"></line>
+        <line x1="-19.5" y1="-11" x2="-10.4" y2="-6" stroke="#7ec8f4" stroke-width="1.5" stroke-linecap="round"></line>
+        <circle cx="0" cy="-26" r="4" fill="#fff" opacity="0.95"></circle>
+        <circle cx="22.5" cy="-13" r="4" fill="#fff" opacity="0.95"></circle>
+        <circle cx="22.5" cy="13" r="4" fill="#fff" opacity="0.95"></circle>
+        <circle cx="0" cy="26" r="4" fill="#fff" opacity="0.95"></circle>
+        <circle cx="-22.5" cy="13" r="4" fill="#fff" opacity="0.95"></circle>
+        <circle cx="-22.5" cy="-13" r="4" fill="#fff" opacity="0.95"></circle>
+        <rect x="-4.5" y="-30" width="9" height="6.5" rx="1.5" fill="none" stroke="rgba(126,200,244,0.8)" stroke-width="1"></rect>
+        <rect x="18" y="-16.5" width="9" height="6.5" rx="1.5" fill="none" stroke="rgba(126,200,244,0.8)" stroke-width="1"></rect>
+        <rect x="18" y="10" width="9" height="6.5" rx="1.5" fill="none" stroke="rgba(126,200,244,0.8)" stroke-width="1"></rect>
+        <rect x="-4.5" y="23.5" width="9" height="6.5" rx="1.5" fill="none" stroke="rgba(126,200,244,0.8)" stroke-width="1"></rect>
+        <rect x="-27" y="10" width="9" height="6.5" rx="1.5" fill="none" stroke="rgba(126,200,244,0.8)" stroke-width="1"></rect>
+        <rect x="-27" y="-16.5" width="9" height="6.5" rx="1.5" fill="none" stroke="rgba(126,200,244,0.8)" stroke-width="1"></rect>
+      </g>
+    </svg>
+  </div>
+  <span class="rs-tag">U.S. Virgin Islands</span>
+  <h1 class="rs-hero__h1">Your Network. Your Security.<br/><span>Done Right.</span></h1>
+  <p class="rs-hero__sub">Professional network services and security camera solutions for homeowners and businesses across the Virgin Islands.</p>
+  <div class="rs-hero__cta">
+    <button class="rs-btn rs-btn--primary rs-btn--md" data-quote>Get a Free Quote</button>
+    <button class="rs-btn rs-btn--secondary rs-btn--md" data-scroll="#services">Our Services</button>
+  </div>
+</header>
+
+<!-- ============================================================ SERVICES ============================================================ -->
+<section id="services" class="rs-section rs-section--wash">
+  <div class="rs-container">
+    <div class="rs-eyebrow">What We Do</div>
+    <div class="rs-title">Services We Provide</div>
+    <p class="rs-services__lead">Tap any service to see what's included.</p>
+    <div class="rs-services__grid" data-services-grid></div>
+  </div>
+</section>
+
+<!-- ============================================================ ABOUT ============================================================ -->
+<section id="about" class="rs-section">
+  <div class="rs-container">
+    <div class="rs-about__grid">
+      <div>
+        <div class="rs-eyebrow">About Us</div>
+        <div class="rs-title" style="margin-bottom:36px">Local. Personal. Dependable.</div>
+        <p class="rs-about__p">Reliable Solutions VI is a Virgin Islands-based provider of network services and security camera solutions for homeowners and businesses.</p>
+        <p class="rs-about__p">As an owner-operated company, we bring a level of personal attention and accountability that larger outfits simply can't match. No call centers, no runaround — just straightforward service from someone who takes pride in the work.</p>
+        <p class="rs-about__p">We built Reliable Solutions VI on a simple idea: that people in our community deserve professional-grade technology services without having to look off-island to get them.</p>
+        <div class="rs-about__stats">
+          <div class="rs-stat"><div class="rs-stat__value">VI</div><div class="rs-stat__label">Locally owned &amp; operated</div></div>
+          <div class="rs-stat"><div class="rs-stat__value">24/7</div><div class="rs-stat__label">Support available</div></div>
+        </div>
+      </div>
+      <div class="rs-why">
+        <h3 class="rs-why__h">Why Choose Us</h3>
+        <div data-reasons></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ CONTACT ============================================================ -->
+<section id="contact" class="rs-section rs-section--dark">
+  <div class="rs-container">
+    <h2 class="rs-contact__h">Ready to Get Started?</h2>
+    <p class="rs-contact__sub">Reach out today for a free quote — no pressure, no runaround.</p>
+    <div class="rs-contact__chips">
+      <a class="rs-chip" href="tel:3407251919"><span class="rs-chip__icon" data-icon="phone" data-size="20"></span><span class="rs-chip__text">340-725-1919</span></a>
+      <a class="rs-chip" href="mailto:reliablesolutionsvi@gmail.com"><span class="rs-chip__icon" data-icon="mail" data-size="20"></span><span class="rs-chip__text">reliablesolutionsvi@gmail.com</span></a>
+    </div>
+    <div class="rs-panel" data-contact-panel></div>
+    <div class="rs-contact__foot">
+      <a href="https://reliablesolutionsvi.com">reliablesolutionsvi.com</a>
+      <p>Serving the U.S. Virgin Islands</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ FOOTER ============================================================ -->
+<footer class="rs-footer">
+  © 2026 Reliable Solutions VI, LLC · <a href="https://reliablesolutionsvi.com">reliablesolutionsvi.com</a> · U.S. Virgin Islands · All rights reserved
+</footer>
+
+<button class="rs-totop" data-totop aria-label="Back to top"><span data-icon="arrow-up" data-size="20"></span></button>
+
+<div data-overlay-root></div>
+
+<script>
+"use strict";
+(function(){
+  /* ---------------------------------------------------------- Icons ---------------------------------------------------------- */
+  var ICON_PATHS = {
+    wifi:'<path d="M5 12.55a11 11 0 0 1 14.08 0"/><path d="M1.42 9a16 16 0 0 1 21.16 0"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><circle cx="12" cy="20" r="1" fill="currentColor" stroke="none"/>',
+    camera:'<path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2"/>',
+    shield:'<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>',
+    clock:'<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>',
+    phone:'<path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.29 2 2 0 0 1 3.6 1h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L7.91 8.5a16 16 0 0 0 6.59 6.59l.96-.96a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>',
+    mail:'<path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/>',
+    menu:'<line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>',
+    x:'<line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>',
+    check:'<polyline points="20 6 9 17 4 12"/>',
+    'arrow-right':'<line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>',
+    'arrow-left':'<line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/>',
+    'arrow-up':'<line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/>',
+    home:'<path d="M3 9.5 12 3l9 6.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/>',
+    building:'<rect x="4" y="3" width="16" height="18" rx="1"/><line x1="9" y1="8" x2="9" y2="8"/><line x1="15" y1="8" x2="15" y2="8"/><line x1="9" y1="12" x2="9" y2="12"/><line x1="15" y1="12" x2="15" y2="12"/><path d="M10 21v-4h4v4"/>'
+  };
+  function icon(name, size){
+    size = size || 24;
+    return '<svg viewBox="0 0 24 24" width="'+size+'" height="'+size+'" fill="none" stroke="currentColor" '+
+      'stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">'+(ICON_PATHS[name]||'')+'</svg>';
+  }
+  function hydrateIcons(root){
+    (root||document).querySelectorAll('[data-icon]').forEach(function(s){
+      s.innerHTML = icon(s.getAttribute('data-icon'), parseInt(s.getAttribute('data-size')||'24',10));
+      s.removeAttribute('data-icon');
+    });
+  }
+
+  /* ---------------------------------------------------------- Data ---------------------------------------------------------- */
+  var SERVICES = [
+    {id:'network',icon:'wifi',title:'Network Installation',
+     short:'Fast, reliable Wi-Fi and wired networks set up for your home or business — installed clean and configured right.',
+     long:'We design and install networks that just work. Whether it’s whole-home mesh Wi-Fi that reaches every room, or structured cabling for an office, we handle the layout, the hardware, and the configuration — and we clean up after ourselves.',
+     includes:['Site walk-through and coverage plan','Router, switch, and access-point setup','Wired drops and cable management','Guest networks and device naming'],
+     starting:'from $150'},
+    {id:'cameras',icon:'camera',title:'Security Cameras',
+     short:'Professional-grade camera systems to protect your property — indoor, outdoor, and remote monitoring options available.',
+     long:'Keep an eye on what matters from anywhere. We install professional camera systems sized to your property, set up recording and remote viewing on your phone, and show you exactly how to use it before we leave.',
+     includes:['Indoor and weatherproof outdoor cameras','Local recording (NVR) or cloud options','Phone app setup and remote viewing','Motion alerts and night-vision tuning'],
+     starting:'from $300'},
+    {id:'security',icon:'shield',title:'Network Security',
+     short:'Firewall setup, secure configurations, and network monitoring to keep your data and devices protected.',
+     long:'A network is only as good as it is safe. We lock down your setup with proper firewall rules, secure passwords, segmented guest access, and monitoring so problems get caught early.',
+     includes:['Firewall configuration and hardening','Secure Wi-Fi and password policy','Guest / IoT network isolation','Ongoing monitoring options'],
+     starting:'from $125'},
+    {id:'support',icon:'clock',title:'Maintenance & Support',
+     short:'Ongoing support and troubleshooting so your systems keep running — no call centers, just a real person who knows your setup.',
+     long:'When something goes wrong, you reach the person who installed it — not a call center. We offer check-ups, quick fixes, and honest advice, remotely or on-site across the islands.',
+     includes:['Remote and on-site troubleshooting','Scheduled system check-ups','Firmware and equipment updates','Priority response for members'],
+     starting:'from $75/visit'}
+  ];
+  var REASONS = [
+    'Owner on every job — no subcontractors',
+    'Professional-grade equipment and installations',
+    'Serving homeowners and businesses across the Virgin Islands',
+    'Honest pricing with no hidden fees',
+    'We stand behind every job we complete',
+    'Personal service from someone you can actually reach'
+  ];
+  function serviceById(id){ return SERVICES.filter(function(s){return s.id===id;})[0]; }
+  var EMAIL_RE = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
+
+  /* ---------------------------------------------------------- Helpers ---------------------------------------------------------- */
+  function esc(s){ return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
+  function smoothTo(sel){
+    if(sel==='#top'){ window.scrollTo({top:0,behavior:'smooth'}); return; }
+    var el=document.querySelector(sel);
+    if(el) window.scrollTo({top:el.offsetTop-64,behavior:'smooth'});
+  }
+
+  /* ---------------------------------------------------------- Build services + reasons ---------------------------------------------------------- */
+  var grid = document.querySelector('[data-services-grid]');
+  grid.innerHTML = SERVICES.map(function(s){
+    return '<button class="rs-card" data-open-service="'+s.id+'">'+
+      '<div class="rs-card__well">'+icon(s.icon,24)+'</div>'+
+      '<h3 class="rs-card__title">'+esc(s.title)+'</h3>'+
+      '<p class="rs-card__copy">'+esc(s.short)+'</p>'+
+      '<span class="rs-card__more">Learn more '+icon('arrow-right',15)+'</span>'+
+    '</button>';
+  }).join('');
+
+  document.querySelector('[data-reasons]').innerHTML = REASONS.map(function(r){
+    return '<div class="rs-check"><span class="rs-check__disc" aria-hidden="true">✓</span><span>'+esc(r)+'</span></div>';
+  }).join('');
+
+  /* ---------------------------------------------------------- Contact form ---------------------------------------------------------- */
+  var contactPanel = document.querySelector('[data-contact-panel]');
+  var contact = { name:'', email:'', service:'', message:'', errors:{}, sent:false };
+  var SERVICE_OPTIONS = ['Network Installation','Security Camera System','Network Security','Maintenance & Support','Other / Not Sure'];
+
+  function renderContact(){
+    if(contact.sent){
+      contactPanel.innerHTML =
+        '<div class="rs-sent">'+
+          '<div class="rs-sent__disc">'+icon('check',28)+'</div>'+
+          '<h3 class="rs-sent__h">Message sent — thank you!</h3>'+
+          '<p class="rs-sent__p">We’ve received your note and will reach out to <strong>'+esc(contact.email)+'</strong> shortly. Talk soon!</p>'+
+          '<button class="rs-btn rs-btn--secondary rs-btn--md" data-contact-reset style="color:var(--rs-navy);border-color:var(--rs-border)">Send another</button>'+
+        '</div>';
+      // "Send another" sits on a light panel here; keep it readable
+      contactPanel.querySelector('[data-contact-reset]').style.color='var(--rs-navy)';
+      contactPanel.querySelector('[data-contact-reset]').addEventListener('click',function(){
+        contact={name:'',email:'',service:'',message:'',errors:{},sent:false}; renderContact();
+      });
+      return;
+    }
+    var e = contact.errors;
+    contactPanel.innerHTML =
+      '<h3 class="rs-panel__h">Send Us a Message</h3>'+
+      '<p class="rs-panel__sub">We’ll get back to you personally — usually the same day.</p>'+
+      '<div class="rs-form__row">'+
+        field('name','Your Name','input','John Smith',contact.name,'dark')+
+        field('email','Your Email','input','you@example.com',contact.email,'dark','email')+
+      '</div>'+
+      selectField('service','Service Needed','Select a service...',SERVICE_OPTIONS,contact.service,'dark')+
+      field('message','Message','textarea','Tell us a bit about your project or what you need help with...',contact.message,'dark')+
+      (e.message?errLine(e.message,'dark'):'')+
+      '<button class="rs-btn rs-btn--send rs-btn--full" data-contact-send style="margin-top:8px">Send Message</button>';
+    // errors under name/email
+    injectErr('name', e.name, 'dark');
+    injectErr('email', e.email, 'dark');
+
+    bindField('name'); bindField('email'); bindField('service'); bindField('message');
+    contactPanel.querySelector('[data-contact-send]').addEventListener('click',submitContact);
+  }
+  function injectErr(k, msg, tone){
+    if(!msg) return;
+    var input = contactPanel.querySelector('[data-field="'+k+'"]');
+    if(!input) return;
+    var wrap = input.closest('.rs-field');
+    var p = document.createElement('p'); p.className='rs-err'; p.textContent=msg;
+    wrap.insertAdjacentElement('afterend', p);
+  }
+  function bindField(k){
+    var input = contactPanel.querySelector('[data-field="'+k+'"]');
+    if(!input) return;
+    input.addEventListener('input',function(ev){ contact[k]=ev.target.value; if(contact.errors[k]){contact.errors[k]=undefined;} });
+  }
+  function submitContact(){
+    var errs={};
+    if(!contact.name.trim()) errs.name='Please enter your name.';
+    if(!EMAIL_RE.test(contact.email)) errs.email='Enter a valid email.';
+    if(!contact.message.trim()) errs.message='Let us know how we can help.';
+    contact.errors=errs;
+    if(Object.keys(errs).length===0){ contact.sent=true; }
+    renderContact();
+  }
+
+  /* Field builders (shared by contact + modal) */
+  function field(key,label,as,placeholder,value,tone,type){
+    var toneCls = tone==='light'?' rs-field--light':'';
+    var control = as==='textarea'
+      ? '<textarea class="rs-control" data-field="'+key+'" placeholder="'+esc(placeholder)+'">'+esc(value||'')+'</textarea>'
+      : '<input class="rs-control" data-field="'+key+'" type="'+(type||'text')+'" placeholder="'+esc(placeholder)+'" value="'+esc(value||'')+'"/>';
+    return '<div class="rs-field'+toneCls+'"><label class="rs-label">'+esc(label)+'</label>'+control+'</div>';
+  }
+  function selectField(key,label,placeholder,options,value,tone){
+    var toneCls = tone==='light'?' rs-field--light':'';
+    var opts = '<option value="" '+(value?'':'selected')+' disabled>'+esc(placeholder)+'</option>'+
+      options.map(function(o){return '<option value="'+esc(o)+'"'+(o===value?' selected':'')+'>'+esc(o)+'</option>';}).join('');
+    return '<div class="rs-field'+toneCls+'"><label class="rs-label">'+esc(label)+'</label>'+
+      '<select class="rs-control" data-field="'+key+'">'+opts+'</select></div>';
+  }
+  function errLine(msg,tone){ return '<p class="rs-err'+(tone==='light'?' rs-err--light':'')+'">'+esc(msg)+'</p>'; }
+
+  renderContact();
+
+  /* ---------------------------------------------------------- Overlays (drawer + modal) ---------------------------------------------------------- */
+  var overlayRoot = document.querySelector('[data-overlay-root]');
+  var escHandler = null;
+  function openOverlay(node){
+    overlayRoot.innerHTML='';
+    overlayRoot.appendChild(node);
+    document.body.style.overflow='hidden';
+    escHandler = function(ev){ if(ev.key==='Escape') closeOverlay(); };
+    document.addEventListener('keydown', escHandler);
+  }
+  function closeOverlay(){
+    overlayRoot.innerHTML='';
+    document.body.style.overflow='';
+    if(escHandler){ document.removeEventListener('keydown', escHandler); escHandler=null; }
+  }
+  function overlayShell(align, inner){
+    var ov=document.createElement('div');
+    ov.className='rs-overlay rs-overlay--'+(align==='right'?'right':'center');
+    ov.addEventListener('click',function(ev){ if(ev.target===ov) closeOverlay(); });
+    var stop=document.createElement('div');
+    if(align!=='right') stop.style.display='contents';
+    stop.addEventListener('click',function(ev){ ev.stopPropagation(); });
+    stop.appendChild(inner);
+    ov.appendChild(stop);
+    return ov;
+  }
+
+  /* ---- Service detail drawer ---- */
+  function openDrawer(id){
+    var s=serviceById(id); if(!s) return;
+    var drawer=document.createElement('div');
+    drawer.className='rs-drawer';
+    drawer.innerHTML =
+      '<div class="rs-drawer__head">'+
+        '<button class="rs-iconbtn rs-drawer__close" data-close aria-label="Close">'+icon('x',18)+'</button>'+
+        '<div class="rs-drawer__well">'+icon(s.icon,24)+'</div>'+
+        '<h2 class="rs-drawer__title">'+esc(s.title)+'</h2>'+
+        '<span class="rs-drawer__price">'+esc(s.starting)+'</span>'+
+      '</div>'+
+      '<div class="rs-drawer__body">'+
+        '<p class="rs-drawer__lead">'+esc(s.long)+'</p>'+
+        '<div class="rs-drawer__inclabel">What’s Included</div>'+
+        '<div class="rs-inc">'+s.includes.map(function(inc){
+          return '<div class="rs-inc__row"><span class="rs-inc__disc">'+icon('check',14)+'</span><span class="rs-inc__text">'+esc(inc)+'</span></div>';
+        }).join('')+'</div>'+
+      '</div>'+
+      '<div class="rs-drawer__foot">'+
+        '<button class="rs-btn rs-btn--solid rs-btn--full" data-request>Request This Service</button>'+
+      '</div>';
+    drawer.querySelector('[data-close]').addEventListener('click',closeOverlay);
+    drawer.querySelector('[data-request]').addEventListener('click',function(){ openQuote(s.id); });
+    openOverlay(overlayShell('right',drawer));
+  }
+
+  /* ---- Multi-step quote modal ---- */
+  function openQuote(initialService){
+    var state = {
+      step:0,
+      services: initialService?[initialService]:[],
+      property:'', timeframe:'', location:'',
+      name:'', email:'', phone:'',
+      touched:false,
+      ref:'RSVI-'+Math.floor(1000+Math.random()*9000)
+    };
+    var host=document.createElement('div');
+    host.className='rs-modal';
+    openOverlay(overlayShell('center',host));
+    renderModal();
+
+    function canNext(){
+      if(state.step===0) return state.services.length>0;
+      if(state.step===1) return !!state.property;
+      if(state.step===2) return state.name.trim() && EMAIL_RE.test(state.email);
+      return true;
+    }
+    function next(){
+      if(state.step===2){ state.touched=false; state.step=3; renderModal(); return; }
+      if(!canNext()){ state.touched=true; renderModal(); return; }
+      state.touched=false; state.step=Math.min(state.step+1,3); renderModal();
+    }
+    function back(){ state.step=Math.max(state.step-1,0); state.touched=false; renderModal(); }
+
+    function renderModal(){
+      var STEPS=['Service','Details','Contact','Done'];
+      var body='';
+      if(state.step===0){
+        body='<p class="rs-modal__lead">What can we help you with? Pick one or more.</p>'+
+          '<div class="rs-pick-grid">'+SERVICES.map(function(s){
+            var on=state.services.indexOf(s.id)>-1;
+            return '<button class="rs-pick'+(on?' is-on':'')+'" data-toggle="'+s.id+'">'+
+              '<span class="rs-pick__icon">'+icon(s.icon,20)+'</span>'+
+              '<span class="rs-pick__label">'+esc(s.title)+'</span></button>';
+          }).join('')+'</div>'+
+          (state.touched&&!canNext()?'<p class="rs-err--light" style="margin:14px 0 0">Please select at least one service.</p>':'');
+      } else if(state.step===1){
+        body='<p class="rs-modal__lead">Tell us a little about the property.</p>'+
+          '<div style="display:flex;gap:12px;margin-bottom:18px">'+
+            propBtn('Home','home')+propBtn('Business','building')+
+          '</div>'+
+          selectField('timeframe','Timeframe','When do you need this?',['As soon as possible','Within a few weeks','Just planning ahead'],state.timeframe,'light')+
+          field('location','Location (island / town)','input','e.g. St. Thomas',state.location,'light')+
+          (state.touched&&!canNext()?'<p class="rs-err--light" style="margin:4px 0 0">Please choose Home or Business.</p>':'');
+      } else if(state.step===2){
+        body='<p class="rs-modal__lead">Where should we send your quote?</p>'+
+          field('name','Your Name','input','John Smith',state.name,'light')+
+          field('email','Your Email','input','you@example.com',state.email,'light','email')+
+          field('phone','Phone (optional)','input','340-555-0100',state.phone,'light')+
+          (state.touched&&!canNext()?'<p class="rs-err--light" style="margin:4px 0 0">Enter your name and a valid email.</p>':'');
+      } else {
+        var first=(state.name.split(' ')[0])||'there';
+        var svcNames=state.services.map(function(id){var s=serviceById(id);return s?s.title:'';}).filter(Boolean).join(', ');
+        body='<div class="rs-done">'+
+          '<div class="rs-done__disc">'+icon('check',30)+'</div>'+
+          '<h3 class="rs-done__h">Thanks, '+esc(first)+'!</h3>'+
+          '<p class="rs-done__p">We’ve got your request and will reach out personally — usually the same day. No call center, just a real person.</p>'+
+          '<div class="rs-summary">'+
+            '<div class="rs-summary__row"><span class="rs-summary__k">Reference</span><span class="rs-summary__v rs-summary__v--ref">'+esc(state.ref)+'</span></div>'+
+            '<div class="rs-summary__row"><span class="rs-summary__k">Services</span><span class="rs-summary__v">'+esc(svcNames)+'</span></div>'+
+          '</div>'+
+        '</div>';
+      }
+
+      var foot;
+      var backBtn = (state.step>0&&state.step<3)?
+        '<button class="rs-backbtn" data-back>'+icon('arrow-left',16)+' Back</button>':'<span></span>';
+      if(state.step<2) foot=backBtn+'<button class="rs-btn rs-btn--solid rs-btn--md" data-next>Continue</button>';
+      else if(state.step===2) foot=backBtn+'<button class="rs-btn rs-btn--send rs-btn--md" data-next>Submit Request</button>';
+      else foot='<span></span><button class="rs-btn rs-btn--solid rs-btn--md" data-done style="margin-left:auto">Done</button>';
+
+      host.innerHTML =
+        '<div class="rs-modal__head">'+
+          '<button class="rs-iconbtn rs-modal__close" data-close aria-label="Close">'+icon('x',16)+'</button>'+
+          '<div class="rs-modal__title">'+(state.step<3?'Get a Free Quote':'Request Received')+'</div>'+
+          '<div class="rs-steps">'+STEPS.map(function(l,i){
+            return '<div class="rs-step'+(i<=state.step?' is-on':'')+'"><div class="rs-step__bar"></div><span class="rs-step__label">'+l+'</span></div>';
+          }).join('')+'</div>'+
+        '</div>'+
+        '<div class="rs-modal__body">'+body+'</div>'+
+        '<div class="rs-modal__foot">'+foot+'</div>';
+
+      // wiring
+      host.querySelector('[data-close]').addEventListener('click',closeOverlay);
+      var b=host.querySelector('[data-back]'); if(b) b.addEventListener('click',back);
+      var n=host.querySelector('[data-next]'); if(n) n.addEventListener('click',next);
+      var d=host.querySelector('[data-done]'); if(d) d.addEventListener('click',closeOverlay);
+
+      host.querySelectorAll('[data-toggle]').forEach(function(btn){
+        btn.addEventListener('click',function(){
+          var id=btn.getAttribute('data-toggle');
+          var i=state.services.indexOf(id);
+          if(i>-1) state.services.splice(i,1); else state.services.push(id);
+          renderModal();
+        });
+      });
+      host.querySelectorAll('[data-prop]').forEach(function(btn){
+        btn.addEventListener('click',function(){ state.property=btn.getAttribute('data-prop'); renderModal(); });
+      });
+      // live-bind text/select fields without re-render (preserve focus)
+      ['location','name','email','phone','timeframe'].forEach(function(k){
+        var input=host.querySelector('[data-field="'+k+'"]');
+        if(input) input.addEventListener('input',function(ev){ state[k]=ev.target.value; });
+      });
+    }
+    function propBtn(label,ic){
+      var on=state.property===label;
+      return '<button class="rs-prop'+(on?' is-on':'')+'" data-prop="'+label+'">'+icon(ic,26)+'<span class="rs-prop__label">'+label+'</span></button>';
+    }
+  }
+
+  /* ---------------------------------------------------------- Global wiring ---------------------------------------------------------- */
+  hydrateIcons(document);
+
+  document.addEventListener('click',function(ev){
+    var scroll = ev.target.closest('[data-scroll]');
+    if(scroll){ ev.preventDefault(); closeMobile(); smoothTo(scroll.getAttribute('data-scroll')); return; }
+    var quote = ev.target.closest('[data-quote]');
+    if(quote){ closeMobile(); openQuote(null); return; }
+    var open = ev.target.closest('[data-open-service]');
+    if(open){ openDrawer(open.getAttribute('data-open-service')); return; }
+    var top = ev.target.closest('[data-totop]');
+    if(top){ window.scrollTo({top:0,behavior:'smooth'}); return; }
+  });
+
+  /* Mobile menu */
+  var mobileMenu=document.querySelector('[data-mobile-menu]');
+  var mobileBtn=document.querySelector('[data-mobile-toggle]');
+  function renderMobileBtn(open){ mobileBtn.innerHTML=icon(open?'x':'menu',24); mobileBtn.setAttribute('aria-expanded',open?'true':'false'); }
+  function closeMobile(){ mobileMenu.classList.remove('is-open'); renderMobileBtn(false); }
+  renderMobileBtn(false);
+  mobileBtn.addEventListener('click',function(){
+    var open=!mobileMenu.classList.contains('is-open');
+    mobileMenu.classList.toggle('is-open',open); renderMobileBtn(open);
+  });
+
+  /* Scroll-aware nav + back-to-top */
+  var navLinks=Array.prototype.slice.call(document.querySelectorAll('.rs-nav__link[data-section]'));
+  var totop=document.querySelector('[data-totop]');
+  var IDS=['services','about','contact'];
+  function onScroll(){
+    totop.classList.toggle('is-visible', window.scrollY>600);
+    var y=window.scrollY+120, cur='top';
+    IDS.forEach(function(id){ var el=document.getElementById(id); if(el && el.offsetTop<=y) cur=id; });
+    navLinks.forEach(function(a){ a.classList.toggle('is-active', a.getAttribute('data-section')===cur); });
+  }
+  window.addEventListener('scroll',onScroll,{passive:true});
+  onScroll();
+})();
+</script>
+</body>
+</html>
+
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Reliable Solutions VI</title>
