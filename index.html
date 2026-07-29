@@ -294,9 +294,38 @@
     footer ul a:hover { color: #7DD3FC; }
     .foot-bottom { border-top: 1px solid rgba(148,163,184,.15); margin-top: var(--space-16); padding-top: var(--space-8); display: flex; justify-content: space-between; flex-wrap: wrap; gap: var(--space-4); font-size: .85rem; }
 
-    /* Reveal animation */
-    .reveal { opacity: 0; transform: translateY(24px); transition: opacity .7s var(--ease), transform .7s var(--ease); }
+    /* Reveal animation — spring-like easing + optional stagger */
+    :root { --spring: cubic-bezier(0.22, 1, 0.36, 1); }
+    .reveal { opacity: 0; transform: translateY(28px); transition: opacity .7s var(--spring), transform .7s var(--spring); transition-delay: var(--reveal-delay, 0ms); will-change: opacity, transform; }
     .reveal.in { opacity: 1; transform: none; }
+
+    /* Hero entrance (runs on load) */
+    .hero-anim { opacity: 0; transform: translateY(22px); }
+    .hero-ready .hero-anim { opacity: 1; transform: none; transition: opacity .8s var(--spring), transform .8s var(--spring); transition-delay: var(--d, 0ms); }
+    .hero-ready .hero-visual { opacity: 1; transform: none; transition: opacity 1s var(--spring), transform 1s var(--spring); transition-delay: .15s; }
+    .hero-visual { opacity: 0; transform: translateY(30px) scale(.98); }
+
+    /* Floating badges gentle bob */
+    @keyframes bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-9px); } }
+    .float-badge { animation: bob 5s ease-in-out infinite; }
+    .float-2 { animation-duration: 6.5s; animation-delay: -2s; }
+
+    /* Hero card subtle 3D tilt (JS-driven via CSS vars) */
+    .hero-card { transform: perspective(1000px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)); transition: transform .3s var(--ease); }
+
+    /* Nav: condense + shadow after scroll */
+    header { transition: box-shadow .3s var(--ease), background .3s var(--ease); }
+    header.scrolled { box-shadow: 0 6px 24px rgba(2, 6, 23, 0.08); background: rgba(248, 250, 252, 0.94); }
+
+    /* Live camera pulse */
+    @keyframes pulseDot { 0% { box-shadow: 0 0 0 0 rgba(34,197,94,.45); } 70% { box-shadow: 0 0 0 8px rgba(34,197,94,0); } 100% { box-shadow: 0 0 0 0 rgba(34,197,94,0); } }
+    .dot { animation: pulseDot 2s infinite; }
+    .cam .rec { animation: pulseDot 1.6s infinite; }
+
+    /* Press feedback on buttons + cards */
+    .btn:active { transform: translateY(0) scale(.97); }
+    .service { will-change: transform; }
+    .service:active { transform: translateY(-4px) scale(.995); }
 
     /* Responsive */
     @media (max-width: 960px) {
@@ -326,7 +355,8 @@
     }
     @media (prefers-reduced-motion: reduce) {
       * { animation: none !important; transition: none !important; scroll-behavior: auto; }
-      .reveal { opacity: 1; transform: none; }
+      .reveal, .hero-anim, .hero-visual { opacity: 1 !important; transform: none !important; }
+      .hero-card { transform: none !important; }
     }
   </style>
 </head>
@@ -379,14 +409,14 @@
     <section class="hero">
       <div class="container hero-grid">
         <div class="hero-copy">
-          <span class="pill"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 12 2 2 4-4"/><circle cx="12" cy="12" r="10"/></svg> Locally owned &amp; operated in the U.S. Virgin Islands</span>
-          <h1>Security cameras &amp; networks you can <span class="accent">actually rely on.</span></h1>
-          <p class="hero-sub">Professional camera systems, structured network installation, and worry-free ongoing management for homes and businesses across St. Thomas.</p>
-          <div class="hero-actions">
+          <span class="pill hero-anim" style="--d:0ms"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 12 2 2 4-4"/><circle cx="12" cy="12" r="10"/></svg> Locally owned &amp; operated in the U.S. Virgin Islands</span>
+          <h1 class="hero-anim" style="--d:90ms">Security cameras &amp; networks you can <span class="accent">actually rely on.</span></h1>
+          <p class="hero-sub hero-anim" style="--d:180ms">Professional camera systems, structured network installation, and worry-free ongoing management for homes and businesses across St. Thomas.</p>
+          <div class="hero-actions hero-anim" style="--d:270ms">
             <a class="btn btn-primary" href="#booking">Book a Free Site Assessment</a>
             <a class="btn btn-ghost" href="#services">Explore Services</a>
           </div>
-          <div class="hero-trust">
+          <div class="hero-trust hero-anim" style="--d:360ms">
             <div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Licensed &amp; insured</div>
             <div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Island-wide service</div>
             <div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> No-pressure quotes</div>
@@ -773,11 +803,85 @@
       toggle.setAttribute('aria-expanded', 'false');
     }));
 
-    // Scroll reveal
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    // Hero entrance on load
+    requestAnimationFrame(() => document.body.classList.add('hero-ready'));
+
+    // Scroll reveal with per-group stagger
     const io = new IntersectionObserver((entries) => {
-      entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
+      entries.forEach(e => {
+        if (!e.isIntersecting) return;
+        const el = e.target;
+        // stagger siblings that share a grid container
+        const group = el.parentElement;
+        const sibs = [...group.querySelectorAll(':scope > .reveal')];
+        const idx = sibs.indexOf(el);
+        el.style.setProperty('--reveal-delay', reduceMotion ? '0ms' : (Math.max(0, idx) * 90) + 'ms');
+        el.classList.add('in');
+        io.unobserve(el);
+      });
     }, { threshold: 0.12 });
     document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+
+    // Animated stat counters (count-up when trust bar enters view)
+    const parseStat = (t) => { const m = t.match(/^([\d.]+)(.*)$/); return m ? { num: parseFloat(m[1]), suffix: m[2], decimals: (m[1].split('.')[1] || '').length } : null; };
+    const statIO = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (!e.isIntersecting) return;
+        const b = e.target; const info = parseStat(b.dataset.val);
+        statIO.unobserve(b);
+        if (!info || reduceMotion) { b.textContent = b.dataset.val; return; }
+        const dur = 1100, start = performance.now();
+        const tick = (now) => {
+          const p = Math.min(1, (now - start) / dur);
+          const eased = 1 - Math.pow(1 - p, 3);
+          const cur = (info.num * eased).toFixed(info.decimals);
+          b.textContent = cur + info.suffix;
+          if (p < 1) requestAnimationFrame(tick); else b.textContent = info.num.toFixed(info.decimals) + info.suffix;
+        };
+        requestAnimationFrame(tick);
+      });
+    }, { threshold: 0.5 });
+    document.querySelectorAll('.stat b').forEach(b => {
+      const info = parseStat(b.textContent);
+      if (info) { b.dataset.val = b.textContent; b.textContent = '0' + info.suffix; statIO.observe(b); }
+    });
+
+    // Header condense on scroll
+    const header = document.querySelector('header');
+    const onScroll = () => header.classList.toggle('scrolled', window.scrollY > 12);
+    window.addEventListener('scroll', onScroll, { passive: true }); onScroll();
+
+    // Hero card 3D tilt on pointer (desktop, motion-safe)
+    const heroCard = document.querySelector('.hero-card');
+    if (heroCard && !reduceMotion && window.matchMedia('(pointer:fine)').matches) {
+      const wrap = heroCard.closest('.hero-visual');
+      wrap.addEventListener('pointermove', (ev) => {
+        const r = wrap.getBoundingClientRect();
+        const px = (ev.clientX - r.left) / r.width - 0.5;
+        const py = (ev.clientY - r.top) / r.height - 0.5;
+        heroCard.style.setProperty('--ry', (px * 7).toFixed(2) + 'deg');
+        heroCard.style.setProperty('--rx', (-py * 7).toFixed(2) + 'deg');
+      });
+      wrap.addEventListener('pointerleave', () => { heroCard.style.setProperty('--ry', '0deg'); heroCard.style.setProperty('--rx', '0deg'); });
+    }
+
+    // Hero scroll parallax (starts after entrance so it doesn't fight the intro)
+    const heroVisual = document.querySelector('.hero-visual');
+    if (heroVisual && !reduceMotion) {
+      let parallaxOn = false, ticking = false;
+      setTimeout(() => { parallaxOn = true; heroVisual.style.transition = 'none'; }, 1100);
+      const applyParallax = () => {
+        ticking = false;
+        if (!parallaxOn) return;
+        const y = Math.max(-50, -window.scrollY / 12); // scroll 0→600px maps to 0→−50px
+        heroVisual.style.transform = 'translate3d(0,' + y.toFixed(1) + 'px,0)';
+      };
+      window.addEventListener('scroll', () => {
+        if (!ticking) { requestAnimationFrame(applyParallax); ticking = true; }
+      }, { passive: true });
+    }
 
     // Form → Web3Forms
     const form = document.getElementById('bookingForm');
