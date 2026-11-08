@@ -199,7 +199,7 @@
         '<button class="btn btn--sm btn--ghost" type="button" data-act="add-for" data-cid="' + esc(c.id) + '">' + RS.ui.icon('plus') + 'Add review</button></div></li>';
     }).join('') + '</ul>';
     return '<section class="card rv-req" aria-labelledby="rv-req-title">' +
-      '<div class="card__head"><h2 class="card__title" id="rv-req-title">Review requests</h2><span class="badge' + (list.length ? ' badge--warn' : ' badge--good') + '"><span class="mono">' + list.length + '</span> completed without a review</span></div>' +
+      '<div class="card__head"><h2 class="card__title" id="rv-req-title">Review requests</h2>' + (list.length ? '<span class="badge badge--warn"><span class="mono">' + list.length + '</span> without a review</span>' : '<span class="badge badge--good">All reviewed</span>') + '</div>' +
       rows + '</section>';
   }
 
