@@ -102,6 +102,10 @@ async function main() {
       const src = await PDFDocument.load(bytes);
       if (src.getPageCount() !== 1) throw new Error(`expected 1 page per card side, got ${src.getPageCount()}`);
       const [p] = await merged.copyPages(src, [0]);
+      // Tell print-shop preflight where the trim is: 0.125in (9pt) bleed on every side.
+      const { width, height } = p.getSize();
+      p.setBleedBox(0, 0, width, height);
+      p.setTrimBox(9, 9, width - 18, height - 18);
       merged.addPage(p);
     }
     fs.writeFileSync(path.join(OUT, 'business-card.pdf'), await merged.save());

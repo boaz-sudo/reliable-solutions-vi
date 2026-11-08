@@ -1,0 +1,6 @@
+# Python deps for the business-card tools (generate.py, qr_branded.py, verify_qr.py)
+# Also needs Node + Playwright with Chromium (npx playwright install chromium) and: cd tools && npm ci
+segno
+Pillow
+cairosvg
+zxing-cpp
