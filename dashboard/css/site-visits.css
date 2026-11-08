@@ -118,6 +118,7 @@
 .sv-outcome--follow:has(input:checked) { background: var(--st-site_visit-soft); border-color: var(--st-site_visit); }
 .sv-outcome--declined:has(input:checked) { background: var(--surface-2); border-color: var(--fg-3); }
 .sv-follow { max-width: 280px; }
+.sv-follow[hidden], .sv-err[hidden] { display: none; }
 
 .sv-report__foot { position: sticky; bottom: -18px; margin-bottom: -18px; padding-bottom: 14px; background: var(--surface); }
 @media (max-width: 560px) { .sv-report__foot .btn, .sv-form .modal__foot .btn { flex: 1 1 auto; min-height: 42px; } .sv-form .toolbar__spacer { display: none; } }

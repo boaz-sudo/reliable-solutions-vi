@@ -321,6 +321,7 @@
     weeks.forEach((w, i) => {
       const x = m.l + band * i + (band - bw) / 2;
       const label = util.fmtShort(w.s.toISOString());
+      const xlab = band < 52 ? (w.s.getMonth() + 1) + '/' + w.s.getDate() : label;
       const segs = TOUCH_TYPES.map((t, ti) => ({ t, ti, n: w.counts[t.id] })).filter(g => g.n > 0);
       let acc = 0;
       segs.forEach((g, gi) => {
@@ -332,7 +333,7 @@
         const attrs = `class="en-chart__seg" style="fill:var(--en-c${g.ti + 1})" tabindex="0" data-tip="${tip}" aria-label="${tip}"`;
         s += isTop ? `<path ${attrs} d="${roundedTopPath(x, top, bw, hgt, 4)}"/>` : `<rect ${attrs} x="${x}" y="${top}" width="${bw}" height="${hgt}"/>`;
       });
-      s += `<text class="en-chart__xlab" x="${x + bw / 2}" y="${H - 8}" text-anchor="middle">${esc(label)}</text>`;
+      s += `<text class="en-chart__xlab" x="${x + bw / 2}" y="${H - 8}" text-anchor="middle">${esc(xlab)}</text>`;
     });
     s += '</svg>';
     host.innerHTML = s + '<div class="en-chart__tip" role="tooltip" hidden></div>';

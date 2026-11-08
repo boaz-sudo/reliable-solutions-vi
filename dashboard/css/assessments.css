@@ -104,3 +104,5 @@
 .as-money span { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--fg-3); font-family: var(--mono); }
 .as-money .input { padding-left: 22px; }
 @media (min-width: 640px) { .as-intake .as-span2 { grid-column: span 2; } }
+.as-table td:first-child { min-width: 170px; }
+@media (max-width: 560px) { .as-table__svc { display: none; } .as-stat .eyebrow { font-size: 0.625rem; } }
