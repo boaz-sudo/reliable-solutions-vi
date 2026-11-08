@@ -1,0 +1,15 @@
+/* Reliable Solutions VI — brand tokens (mirrors index.html) */
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,300;1,9..144,400&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap');
+:root {
+  --ink: #0F172A;        /* primary dark navy */
+  --blue: #0369A1;       /* "rust" on site — primary accent */
+  --blue-deep: #075985;
+  --sky: #38BDF8;        /* "amber" on site — bright accent */
+  --sky-soft: #7DD3FC;
+  --cream: #EEF3F8;
+  --cream-2: #DCE7F1;
+  --paper: #F8FAFC;
+  --serif: 'Fraunces', Georgia, serif;
+  --sans: 'Inter', system-ui, sans-serif;
+  --mono: 'JetBrains Mono', ui-monospace, monospace;
+}

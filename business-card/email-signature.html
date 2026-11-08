@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Gmail Email Signature</title>
+</head>
+<body style="margin:0; padding:24px 16px; background:#EEF3F8; font-family:Arial, Helvetica, sans-serif; color:#0F172A;">
+
+<div style="max-width:640px; margin:0 auto;">
+  <h1 style="font-family:Georgia, 'Times New Roman', serif; font-weight:normal; font-size:24px; margin:0 0 12px;">Reliable Solutions VI: email signature</h1>
+  <ol style="font-size:14px; line-height:1.55; margin:0 0 12px; padding-left:20px;">
+    <li>Open this file in a browser (Chrome works best with Gmail).</li>
+    <li>Drag to select everything inside the dashed box below (or click <strong>Select signature</strong>), then copy it with Ctrl/Cmd + C.</li>
+    <li>In Gmail, go to <strong>Settings &rarr; See all settings &rarr; General &rarr; Signature</strong>, create a new signature, and paste.</li>
+    <li>Scroll to the bottom of that page and click <strong>Save Changes</strong>.</li>
+  </ol>
+  <p style="font-size:13px; line-height:1.5; margin:0 0 16px; padding:10px 12px; background:#FFFFFF; border-left:3px solid #0369A1;">
+    <strong>Before you paste for real:</strong> the images point to
+    <code style="font-size:12px;">https://reliablesolutionsvi.com/business-card/assets/logo.png</code> and
+    <code style="font-size:12px;">https://reliablesolutionsvi.com/business-card/assets/qr-vcard.png</code>.
+    Gmail strips embedded (data:) and SVG images, so these must be public PNG links.
+    Copy the signature from the live page at <code style="font-size:12px;">https://reliablesolutionsvi.com/business-card/email-signature.html</code> once this folder is deployed, so the pasted images use those public links.
+    When this file is opened anywhere else (e.g. locally), the images are shown from the local <code style="font-size:12px;">assets/</code> folder for preview only, so don't copy from a local copy.
+  </p>
+  <p style="margin:0 0 16px;">
+    <button type="button" id="select-sig" style="font-family:Arial, Helvetica, sans-serif; font-size:14px; padding:8px 14px; background:#0369A1; color:#FFFFFF; border:0; border-radius:6px; cursor:pointer;">Select signature</button>
+  </p>
+</div>
+
+<!-- ===================== SIGNATURE START (copy everything inside the dashed box) ===================== -->
+<div style="max-width:640px; margin:0 auto; background:#FFFFFF; border:2px dashed #94A3B8; border-radius:8px; padding:20px 16px; overflow-x:auto;">
+<div id="signature">
+<table cellpadding="0" cellspacing="0" border="0" width="500" role="presentation" style="border-collapse:collapse; width:500px; font-family:Arial, Helvetica, sans-serif; color:#0F172A;">
+  <tr>
+    <td valign="top" width="72" style="padding:0 14px 0 0; vertical-align:top; width:72px;">
+      <img src="https://reliablesolutionsvi.com/business-card/assets/logo.png" data-local="assets/logo.png" width="64" height="64" alt="Reliable Solutions VI logo" style="display:block; width:64px; height:64px; border:0;">
+    </td>
+    <td valign="top" style="padding:0 14px 0 14px; vertical-align:top; border-left:2px solid #0369A1;">
+      <div style="font-family:Georgia, 'Times New Roman', serif; font-size:19px; line-height:24px; font-weight:bold; color:#0F172A; margin:0;">Michael Gooding</div>
+      <div style="font-family:Arial, Helvetica, sans-serif; font-size:12px; line-height:18px; color:#0369A1; letter-spacing:0.5px; text-transform:uppercase; margin:2px 0 8px;">Owner &middot; Reliable Solutions VI</div>
+      <div style="font-family:Arial, Helvetica, sans-serif; font-size:12px; line-height:18px; color:#334155;">Security cameras &middot; Network setup &amp; management</div>
+      <div style="font-family:Arial, Helvetica, sans-serif; font-size:12px; line-height:18px; color:#334155; margin:0 0 6px;">Locally owned &middot; St. Thomas, USVI</div>
+      <div style="font-family:Arial, Helvetica, sans-serif; font-size:13px; line-height:20px;">
+        <span style="color:#0369A1; font-weight:bold;">T</span>&nbsp;<a href="tel:+13407251919" style="color:#0F172A; text-decoration:none;">(340) 725-1919</a>
+      </div>
+      <div style="font-family:Arial, Helvetica, sans-serif; font-size:13px; line-height:20px;">
+        <span style="color:#0369A1; font-weight:bold;">E</span>&nbsp;<a href="mailto:reliablesolutionsvi@gmail.com" style="color:#0F172A; text-decoration:none;">reliablesolutionsvi@gmail.com</a>
+      </div>
+      <div style="font-family:Arial, Helvetica, sans-serif; font-size:13px; line-height:20px;">
+        <span style="color:#0369A1; font-weight:bold;">W</span>&nbsp;<a href="https://reliablesolutionsvi.com" style="color:#0F172A; text-decoration:none;">reliablesolutionsvi.com</a>
+      </div>
+    </td>
+    <td valign="top" align="center" width="96" style="padding:0 0 0 6px; vertical-align:top; width:96px; text-align:center;">
+      <img src="https://reliablesolutionsvi.com/business-card/assets/qr-vcard.png" data-local="assets/qr-vcard.png" width="90" height="90" alt="QR code: save Michael Gooding, Reliable Solutions VI, to contacts" style="display:block; width:90px; height:90px; border:0; margin:0 auto;">
+      <div style="font-family:Arial, Helvetica, sans-serif; font-size:10px; line-height:14px; color:#64748B; margin-top:4px;">Scan to save contact</div>
+    </td>
+  </tr>
+</table>
+</div>
+</div>
+<!-- ===================== SIGNATURE END ===================== -->
+
+<script>
+  // Preview-only helper. The signature markup uses absolute reliablesolutionsvi.com image URLs
+  // (Gmail needs public PNG links). Off the live site, images are swapped to the relative
+  // assets/ paths so the layout can be previewed; on the live site nothing is swapped.
+  (function () {
+    var live = /(^|\.)reliablesolutionsvi\.com$/.test(location.hostname);
+    var imgs = live ? [] : document.querySelectorAll('#signature img[data-local]');
+    for (var i = 0; i < imgs.length; i++) {
+      if (imgs[i].getAttribute('src').indexOf('https://reliablesolutionsvi.com/') === 0) {
+        imgs[i].setAttribute('src', imgs[i].getAttribute('data-local'));
+      }
+    }
+    document.getElementById('select-sig').addEventListener('click', function () {
+      var range = document.createRange();
+      range.selectNodeContents(document.getElementById('signature'));
+      var sel = window.getSelection();
+      sel.removeAllRanges();
+      sel.addRange(range);
+    });
+  })();
+</script>
+</body>
+</html>
