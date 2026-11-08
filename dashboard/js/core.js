@@ -548,6 +548,7 @@
     const shared = !!(window.claude && typeof window.claude.use === 'function');
     if (!shared && store.isEmpty() && !db.meta.seeded && RS.seed) RS.seed(); // seed.js provides demo data on first run (this-device mode only)
     sync.onStatus(renderSync);
+    const note = document.getElementById('local-note'); if (note) note.hidden = shared;
     if (shared) sync.start().then(ok => { if (!ok && store.isEmpty() && !db.meta.seeded && RS.seed) RS.seed(); });
     document.getElementById('quick-add').addEventListener('click', () => RS.newAssessment());
     store.subscribe(() => { renderNav(); renderCurrent(); });

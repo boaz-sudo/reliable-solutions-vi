@@ -262,3 +262,5 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 .sync--warn { color: var(--warn); } .sync--warn::before { background: var(--warn); }
 @keyframes sync-pulse { from { opacity: 0.35; } }
 @media (max-width: 560px) { .sync { font-size: 0.6875rem; } .topbar__lead { gap: 2px 10px; } }
+.local-note { margin: 16px 28px 0; padding: 10px 14px; border-radius: var(--r-md); background: var(--warn-soft); color: var(--fg); font-size: var(--t-sm); }
+@media (max-width: 860px) { .local-note { margin: 12px 16px 0; } }
