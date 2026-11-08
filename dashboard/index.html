@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Client Desk · Reliable Solutions VI</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" href="logo.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap">
+<link rel="stylesheet" href="css/app.css">
+<!-- MODULE-CSS:START (one stylesheet per module; keep this list in sync with scripts below) -->
+<link rel="stylesheet" href="css/overview.css">
+<link rel="stylesheet" href="css/pipeline.css">
+<link rel="stylesheet" href="css/clients.css">
+<link rel="stylesheet" href="css/client-drawer.css">
+<link rel="stylesheet" href="css/assessments.css">
+<link rel="stylesheet" href="css/site-visits.css">
+<link rel="stylesheet" href="css/reviews.css">
+<link rel="stylesheet" href="css/engagement.css">
+<link rel="stylesheet" href="css/data.css">
+<!-- MODULE-CSS:END -->
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <a class="brand" href="#overview" aria-label="Client Desk home">
+      <svg class="brand__mark" viewBox="0 0 48 48" aria-hidden="true"><defs><linearGradient id="rsShield" x1="8" y1="4" x2="40" y2="44" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#0F172A"/><stop offset="1" stop-color="#0369A1"/></linearGradient></defs><path d="M24 3 L41 9 V23.5 C41 34 33.5 41.2 24 45 C14.5 41.2 7 34 7 23.5 V9 Z" fill="url(#rsShield)" stroke="rgba(255,255,255,0.25)" stroke-width="1"/><circle cx="24" cy="22" r="8" fill="none" stroke="#F8FAFC" stroke-width="2.4"/><circle cx="24" cy="22" r="3.1" fill="#38BDF8"/></svg>
+      <span class="brand__text"><span class="brand__name">Client Desk</span><span class="brand__sub">Reliable Solutions VI</span></span>
+    </a>
+    <nav class="nav" id="nav" aria-label="Sections"></nav>
+    <p class="sidebar__foot">St. Thomas · U.S. Virgin Islands</p>
+  </aside>
+
+  <div class="main" id="main">
+    <header class="topbar">
+      <div class="topbar__lead"><h1 class="topbar__title" id="view-title">Overview</h1><span class="sync sync--local" id="sync-status" role="status">Saved on this device</span></div>
+      <button class="btn btn--primary" id="quick-add" type="button"><svg class="ico" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg><span>New assessment</span></button>
+    </header>
+    <p class="local-note" id="local-note" hidden>This copy saves to this device only. For the dashboard that syncs between your computer and phone, open <a href="https://claude.ai/artifact/J1zxzwo7qhfQ3apGm4deVX" target="_blank" rel="noopener">your synced Client Desk</a>.</p>
+    <section class="view" id="view" aria-live="polite"></section>
+  </div>
+</div>
+<div id="overlay-root"></div>
+<div class="toasts" id="toasts" aria-live="polite"></div>
+
+<script src="js/core.js"></script>
+<!-- MODULE-JS:START (order matters only for seed.js, which must load before boot — all run before DOMContentLoaded) -->
+<script src="js/modules/seed.js"></script>
+<script src="js/modules/overview.js"></script>
+<script src="js/modules/pipeline.js"></script>
+<script src="js/modules/clients.js"></script>
+<script src="js/modules/client-drawer.js"></script>
+<script src="js/modules/assessments.js"></script>
+<script src="js/modules/site-visits.js"></script>
+<script src="js/modules/reviews.js"></script>
+<script src="js/modules/engagement.js"></script>
+<script src="js/modules/data.js"></script>
+<!-- MODULE-JS:END -->
+</body>
+</html>
