@@ -48,7 +48,7 @@
   const stageOf = id => RS.STAGES.find(s => s.id === id) || RS.STAGES[0];
   const badge = (pair) => '<span class="badge' + (pair[1] ? ' badge--' + pair[1] : '') + '">' + esc(pair[0]) + '</span>';
   const timeOf = iso => { const d = new Date(iso); if (isNaN(d)) return ''; return util.fmtTime(String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0')); };
-  const humanize = k => String(k).replace(/[_-]+/g, ' ').replace(/([a-z])([A-Z])/g, '$1 $2').replace(/^./, c => c.toUpperCase());
+  const humanize = k => /^[a-z]{2,3}$/i.test(k) ? String(k).toUpperCase() : String(k).replace(/[_-]+/g, ' ').replace(/([a-z])([A-Z])/g, '$1 $2').replace(/^./, c => c.toUpperCase());
 
   /* =========================================================
    * Equipment counters (shared helper)
@@ -183,7 +183,7 @@
     const rows = RS.EQUIPMENT.map(e => {
       const req = Number(c.equipment[e.key]) || 0, sur = Number(v.survey[e.key]) || 0, d = sur - req;
       const diff = d === 0 ? '<span class="muted">—</span>' : '<span class="cd-diff ' + (d > 0 ? 'cd-diff--up' : 'cd-diff--down') + '">' + (d > 0 ? '+' : '−') + Math.abs(d) + '</span>';
-      return h`<tr><th scope="row">${raw(ui.icon(EQ_ICON[e.key]))}${e.label}</th><td class="num">${req}</td><td class="num">${sur}</td><td class="num">${raw(diff)}</td></tr>`;
+      return h`<tr><th scope="row"><span class="cd-survey__eq">${raw(ui.icon(EQ_ICON[e.key]))}${e.label}</span></th><td class="num">${req}</td><td class="num">${sur}</td><td class="num">${raw(diff)}</td></tr>`;
     }).join('');
     return h`
       <div class="cd-tabhead">${raw(badge(SV_STATUS[v.status] || [humanize(v.status || ''), '']))}<span class="toolbar__spacer"></span><button type="button" class="btn btn--sm" data-act="visit">${raw(ui.icon('calendar'))}Schedule / edit visit</button></div>
@@ -262,7 +262,7 @@
       </div>
       <section class="cd-stage" aria-label="Stage">
         ${raw(renderStepper(c))}
-        <div class="cd-stage__foot"><span class="muted">In ${stage.label.toLowerCase()} since <span class="mono">${util.fmtShort(c.stageChangedAt)}</span></span>${raw(nextStepBtn(c))}</div>
+        <div class="cd-stage__foot"><span class="muted">${stage.label} since <span class="mono">${util.fmtShort(c.stageChangedAt)}</span></span>${raw(nextStepBtn(c))}</div>
       </section>
       <div class="cd-actions" role="group" aria-label="Quick actions">
         <button type="button" class="btn btn--sm" data-act="log" data-type="call">${raw(ui.icon('phone'))}Log call</button>
@@ -312,6 +312,8 @@
       aside.scrollTop = st;
       const f = focusId ? document.getElementById(focusId) : focusSel ? body.querySelector(focusSel) : null;
       if (f && f.focus) f.focus({ preventScroll: true });
+      const at = body.querySelector('.cd-tab[aria-selected="true"]'), bar = body.querySelector('.cd-tabs');
+      if (at && bar) bar.scrollLeft = Math.max(0, at.offsetLeft - (bar.clientWidth - at.offsetWidth) / 2);
     }
 
     body.onclick = async e => {

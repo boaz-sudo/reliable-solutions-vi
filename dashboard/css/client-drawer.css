@@ -1,7 +1,8 @@
 /* client-drawer — client profile drawer (.cd-drawer) + client form modal (.cd-modal). All selectors prefixed .cd- */
 
-.cd-drawer { display: flex; flex-direction: column; overscroll-behavior: contain; }
-.cd-drawer .drawer__body { display: flex; flex-direction: column; min-width: 0; }
+.cd-drawer { overscroll-behavior: contain; }
+.cd-drawer .drawer__body { display: flex; flex-direction: column; min-width: 0; min-height: 100%; }
+.cd-drawer .drawer__body > * { flex-shrink: 0; }
 
 /* header */
 .cd-top { position: sticky; top: 0; z-index: 2; display: flex; align-items: flex-start; gap: 12px; padding: 18px 18px 14px; background: var(--surface); border-bottom: 1px solid var(--line); box-shadow: inset 3px 0 0 var(--cd-st, var(--accent)); }
@@ -96,12 +97,13 @@ a.cd-contact__ico:hover { background: var(--accent-soft); }
 .cd-checkbox { display: inline-grid; place-items: center; width: 18px; height: 18px; flex: none; border-radius: var(--r-sm); border: 1.5px solid var(--line-strong); }
 .cd-checklist li.is-done .cd-checkbox { background: var(--good); border-color: var(--good); color: var(--surface); }
 .cd-checkbox .ico { width: 13px; height: 13px; }
-.cd-survey th[scope="row"] { display: flex; align-items: center; gap: 8px; font-weight: 500; text-transform: none; letter-spacing: 0; font-size: var(--t-sm); color: var(--fg); background: none; border-bottom: 0; padding: 0; }
-.cd-survey tbody th { padding: 9px 12px; }
+.cd-survey tbody th { font-weight: 500; text-transform: none; letter-spacing: 0; font-size: var(--t-sm); color: var(--fg); background: none; padding: 9px 12px; }
+.cd-survey tbody tr:last-child th { border-bottom: 0; }
+.cd-survey__eq { display: inline-flex; align-items: center; gap: 8px; }
 .cd-survey tbody td { font-family: var(--mono); font-variant-numeric: tabular-nums; }
 .cd-survey tbody tr { cursor: default; }
 .cd-survey tbody tr:hover { background: none; }
-.cd-survey th[scope="row"] .ico { width: 16px; height: 16px; color: var(--accent); }
+.cd-survey__eq .ico { width: 16px; height: 16px; color: var(--accent); }
 .cd-diff { font-weight: 600; }
 .cd-diff--up { color: var(--warn); }
 .cd-diff--down { color: var(--accent); }
