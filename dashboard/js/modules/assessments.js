@@ -29,6 +29,7 @@
   /** Four equipment steppers. ids: `${prefix}-cameras`, `${prefix}-accessPoints`, ... */
   function countersHtml(prefix, eq) {
     eq = eq || {};
+    if (ui.equipCounters) return ui.equipCounters(prefix, eq); // shared steppers from client-drawer.js
     return '<div class="counter-grid">' + RS.EQUIPMENT.map(e => {
       const id = prefix + '-' + e.key, v = Number(eq[e.key]) || 0;
       return h`<div class="counter">
@@ -42,6 +43,11 @@
     }).join('') + '</div>';
   }
   function bindCounters(root, prefix, onChange) {
+    if (ui.equipCounters && ui.bindEquipCounters) {
+      ui.bindEquipCounters(root);
+      root.addEventListener('input', e => { if (e.target.id && e.target.id.startsWith(prefix + '-')) onChange && onChange(); });
+      return;
+    }
     root.addEventListener('click', e => {
       const b = e.target.closest('button[data-step]'); if (!b || !b.dataset.for.startsWith(prefix + '-')) return;
       const inp = root.querySelector('#' + b.dataset.for);
@@ -384,7 +390,6 @@
       <div class="as-stat as-stat--req"><span class="eyebrow">Requested</span><span class="as-stat__n">${requested}</span><span class="as-stat__sub">${late ? plural(late, 'waiting over 3 days', 'waiting over 3 days') : 'Not yet scheduled'}</span></div>
       <div class="as-stat as-stat--sch"><span class="eyebrow">Scheduled</span><span class="as-stat__n">${scheduled}</span><span class="as-stat__sub">On the calendar</span></div>
       <div class="as-stat as-stat--done"><span class="eyebrow">Completed this month</span><span class="as-stat__n">${doneMonth}</span><span class="as-stat__sub">${new Date().toLocaleDateString('en-US', { month: 'long' })}</span></div>
-      <div class="as-strip__act"><button type="button" class="btn btn--primary" data-act="new">${raw(ui.icon('plus'))}New assessment</button></div>
     </div>`;
 
     const tabs = h`<div class="as-tabs" role="tablist" aria-label="Assessment lists">

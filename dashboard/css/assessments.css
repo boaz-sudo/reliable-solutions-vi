@@ -1,18 +1,15 @@
 /* Free assessments — view [data-view="assessments"] + intake/results modals (.as- prefix) */
 
 /* ---------- header strip ---------- */
-[data-view="assessments"] .as-strip { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)) auto; gap: 12px; align-items: stretch; }
+[data-view="assessments"] .as-strip { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; align-items: stretch; }
 .as-stat { display: flex; flex-direction: column; gap: 4px; min-width: 0; padding: 14px 16px; background: var(--surface); border: 1px solid var(--line); border-left: 3px solid var(--line-strong); border-radius: var(--r-lg); box-shadow: var(--shadow); }
 .as-stat--req { border-left-color: var(--warn); }
 .as-stat--sch { border-left-color: var(--st-assessment); }
 .as-stat--done { border-left-color: var(--st-completed); }
 .as-stat__n { font: 500 var(--t-2xl)/1 var(--serif); font-variant-numeric: tabular-nums; color: var(--fg); }
 .as-stat__sub { font-size: var(--t-xs); color: var(--fg-3); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.as-strip__act { display: flex; align-items: center; justify-content: flex-end; }
 @media (max-width: 760px) {
   [data-view="assessments"] .as-strip { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-  .as-strip__act { grid-column: 1 / -1; justify-content: stretch; }
-  .as-strip__act .btn { width: 100%; }
   .as-stat { padding: 10px 12px; }
   .as-stat__n { font-size: var(--t-xl); }
   .as-stat__sub { display: none; }

@@ -20,11 +20,10 @@
   function computeKpis(clients, reviews) {
     const by = id => clients.filter(c => c.stage === id);
     const assess = by('assessment'), visits = by('site_visit'), active = by('in_progress'), done = by('completed');
-    const open = clients.filter(c => c.stage !== 'completed');
     const recentDone = done.filter(c => { const d = util.daysBetween(c.job.completedAt || c.stageChangedAt); return d != null && d >= 0 && d <= 30; }).length;
     const rated = reviews.filter(r => Number(r.rating) > 0);
     const avg = rated.length ? sum(rated, r => r.rating) / rated.length : 0;
-    return { assess: assess.length, visits: visits.length, active: active.length, done: done.length, recentDone, pipelineValue: sum(open, c => c.quote), avg, reviewCount: rated.length };
+    return { assess: assess.length, visits: visits.length, active: active.length, done: done.length, recentDone, activeValue: sum(active, c => c.quote), avg, reviewCount: rated.length };
   }
 
   function attentionItems(clients, today, tomorrow) {
@@ -88,7 +87,7 @@
     </button>`;
     return '<section class="ov-kpis" aria-label="Key numbers">' +
       tile('pipeline', 'Potential clients', h`<span class="num">${k.assess + k.visits}</span>`, h`${plural(k.assess, 'assessment')} · ${plural(k.visits, 'site visit')}`) +
-      tile('pipeline', 'Active jobs', h`<span class="num">${k.active}</span>`, h`<span class="num">${util.fmtMoney(k.pipelineValue)}</span> pipeline value`) +
+      tile('pipeline', 'Active jobs', h`<span class="num">${k.active}</span>`, h`<span class="num">${util.fmtMoney(k.activeValue)}</span> quoted on active jobs`) +
       tile('pipeline', 'Completed', h`<span class="num">${k.done}</span>`, h`<span class="num">${k.recentDone}</span> in the last 30 days`) +
       tile('reviews', 'Average rating', k.reviewCount ? h`<span class="num">${k.avg.toFixed(1)}</span>${raw(ui.stars(k.avg))}` : '<span class="num">—</span>',
         k.reviewCount ? h`From ${plural(k.reviewCount, 'review')}` : 'No reviews yet') +

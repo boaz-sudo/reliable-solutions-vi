@@ -286,7 +286,7 @@
     const all = RS.store.reviews();
     if (state.replyId && !all.find(r => r.id === state.replyId)) { state.replyId = null; state.replyDraft = ''; }
 
-    const head = '<div class="toolbar rv-top"><h2 class="section-title">Reviews &amp; testimonials</h2><span class="toolbar__spacer"></span><button class="btn btn--primary" type="button" data-act="add">' + RS.ui.icon('plus') + 'Add review</button></div>';
+    const head = '<div class="toolbar rv-top"><span class="toolbar__spacer"></span><button class="btn btn--primary" type="button" data-act="add">' + RS.ui.icon('plus') + 'Add review</button></div>';
 
     if (!all.length) {
       mount.innerHTML = head + RS.ui.empty('No reviews yet', 'Log reviews from Google, Facebook or direct feedback here. Ask completed clients first — they know your work best.', '<button class="btn btn--primary" type="button" data-act="add">' + RS.ui.icon('plus') + 'Add the first review</button>') +

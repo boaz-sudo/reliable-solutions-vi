@@ -171,9 +171,27 @@
   }
 
   function checklistItems(cl) {
+    const defs = Array.isArray(RS.SITE_VISIT_CHECKS) ? RS.SITE_VISIT_CHECKS : null;
+    if (defs && (!cl || !Array.isArray(cl))) {
+      // Known checks from site-visits.js, in their defined order, plus any extra keys stored on the client.
+      const map = cl || {};
+      if (!defs.some(k => k.id in map) && !Object.keys(map).length) return [];
+      const known = defs.map(k => { const v = map[k.id]; return { label: k.label, done: !!(v && typeof v === 'object' ? (v.done || v.checked) : v) }; });
+      const extra = Object.keys(map).filter(k => !defs.some(d => d.id === k)).map(k => { const v = map[k]; return (v && typeof v === 'object') ? { label: v.label || humanize(k), done: !!(v.done || v.checked) } : { label: humanize(k), done: !!v }; });
+      return known.concat(extra);
+    }
     if (!cl) return [];
     if (Array.isArray(cl)) return cl.map(x => typeof x === 'string' ? { label: x, done: true } : { label: x.label || x.text || x.id || '', done: !!(x.done || x.checked) });
     return Object.keys(cl).map(k => { const v = cl[k]; return (v && typeof v === 'object') ? { label: v.label || humanize(k), done: !!(v.done || v.checked) } : { label: humanize(k), done: !!v }; });
+  }
+
+  function visitActions(v) {
+    const canRecord = typeof RS.recordVisit === 'function';
+    const rec = label => canRecord ? '<button type="button" class="btn btn--sm' + (v.status === 'scheduled' ? ' btn--primary' : '') + '" data-act="record-visit">' + ui.icon('note') + label + '</button>' : '';
+    const sched = label => '<button type="button" class="btn btn--sm" data-act="visit">' + ui.icon('calendar') + label + '</button>';
+    if (v.status === 'scheduled') return rec('Record visit report') + sched('Reschedule');
+    if (v.status === 'completed') return rec('Edit report') || sched('Edit visit');
+    return sched('Schedule visit');
   }
 
   function tabVisit(c) {
@@ -186,7 +204,7 @@
       return h`<tr><th scope="row"><span class="cd-survey__eq">${raw(ui.icon(EQ_ICON[e.key]))}${e.label}</span></th><td class="num">${req}</td><td class="num">${sur}</td><td class="num">${raw(diff)}</td></tr>`;
     }).join('');
     return h`
-      <div class="cd-tabhead">${raw(badge(SV_STATUS[v.status] || [humanize(v.status || ''), '']))}<span class="toolbar__spacer"></span><button type="button" class="btn btn--sm" data-act="visit">${raw(ui.icon('calendar'))}Schedule / edit visit</button></div>
+      <div class="cd-tabhead">${raw(badge(SV_STATUS[v.status] || [humanize(v.status || ''), '']))}<span class="toolbar__spacer"></span>${raw(visitActions(v))}</div>
       <dl class="cd-facts">
         <div><dt>Date</dt><dd class="mono">${util.fmtDate(v.date)}</dd></div>
         <div><dt>Time</dt><dd class="mono">${v.time ? util.fmtTime(v.time) : '—'}</dd></div>
@@ -331,6 +349,7 @@
         case 'next-complete': goStage(c, 'completed'); break;
         case 'next-review': case 'review': RS.addReview(id); break;
         case 'visit': RS.scheduleVisit(id); break;
+        case 'record-visit': if (RS.recordVisit) RS.recordVisit(id); break;
         case 'log': RS.logActivity(id, b.dataset.type); break;
         case 'edit': RS.editClient(id); break;
         case 'clear-followup': store.updateClient(id, { followUpOn: '' }); ui.toast('Follow-up cleared'); break;

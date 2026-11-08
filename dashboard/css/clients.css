@@ -90,3 +90,13 @@
 /* CSV modal (rendered in overlay root) */
 .clients-csv { display: grid; gap: 8px; }
 .clients-csv__text { font-family: var(--mono); font-size: var(--t-xs); white-space: pre; overflow: auto; min-height: 200px; }
+/* fit all columns at laptop widths */
+@media (min-width: 700px) {
+  [data-view="clients"] .clients-table th, [data-view="clients"] .clients-table td { padding-left: 8px; padding-right: 8px; }
+  [data-view="clients"] .clients-namecell { max-width: 220px; }
+  [data-view="clients"] .clients-meter__bar { width: 40px; }
+}
+@media (min-width: 700px) and (max-width: 1440px) {
+  [data-view="clients"] .clients-svcs { flex-wrap: wrap; max-width: 118px; }
+  [data-view="clients"] .clients-namecell { max-width: 200px; }
+}

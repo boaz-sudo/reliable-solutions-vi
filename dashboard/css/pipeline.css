@@ -38,6 +38,7 @@
 [data-view="pipeline"] .pl-card__eq { min-width: 0; font-size: var(--t-xs); }
 [data-view="pipeline"] .pl-ctx { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; font-size: var(--t-xs); color: var(--fg-2); min-width: 0; }
 [data-view="pipeline"] .pl-ctx .ico { width: 15px; height: 15px; color: var(--pl-c); }
+[data-view="pipeline"] .pl-ctx > .ico + span:last-child { flex: 1 1 0; min-width: 0; } /* keep the icon on the same line as long text */
 [data-view="pipeline"] .pl-card__flags { display: flex; flex-wrap: wrap; gap: 4px; }
 [data-view="pipeline"] .pl-progress { display: flex; flex-direction: column; gap: 4px; }
 [data-view="pipeline"] .pl-progress__meta { display: flex; justify-content: space-between; gap: 8px; font-size: var(--t-xs); color: var(--fg-2); }
@@ -46,7 +47,10 @@
 [data-view="pipeline"] .pl-card__actions { display: flex; align-items: center; gap: 6px; margin-top: 2px; padding-top: 8px; border-top: 1px solid var(--line); min-width: 0; }
 [data-view="pipeline"] .pl-next { min-width: 0; }
 [data-view="pipeline"] .pl-next .ico { width: 15px; height: 15px; }
-[data-view="pipeline"] .pl-card__quote { flex: 1; text-align: right; font-size: var(--t-xs); color: var(--fg-2); min-width: 0; }
+[data-view="pipeline"] .pl-card__quote { flex: 1 0 auto; text-align: right; font-size: var(--t-xs); color: var(--fg-2); white-space: nowrap; }
+[data-view="pipeline"] .pl-card__actions { flex-wrap: wrap; }
+[data-view="pipeline"] .pl-card { container-type: inline-size; }
+@container (max-width: 250px) { [data-view="pipeline"] .pl-card__actions { gap: 4px; } [data-view="pipeline"] .pl-next .ico { display: none; } [data-view="pipeline"] .pl-next { padding-inline: 8px; } [data-view="pipeline"] .pl-card__quote { font-size: 0.6875rem; letter-spacing: -0.02em; } [data-view="pipeline"] .pl-movebtn { width: 26px; } }
 [data-view="pipeline"] .pl-movebtn { width: 30px; height: 30px; flex: none; }
 [data-view="pipeline"] .pl-movebtn[aria-expanded="true"] { background: var(--surface-2); border-color: var(--line-strong); color: var(--fg); }
 

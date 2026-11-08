@@ -216,7 +216,7 @@
       const body = wrap.querySelector('.modal__body'); body.innerHTML = opts.body || '';
       const prevFocus = document.activeElement;
       function close() { wrap.remove(); document.removeEventListener('keydown', onKey); if (opts.onClose) opts.onClose(); if (prevFocus && prevFocus.focus) prevFocus.focus(); }
-      function onKey(e) { if (e.key === 'Escape') close(); }
+      function onKey(e) { if (e.key !== 'Escape') return; const all = document.querySelectorAll('.modal-wrap'); if (all[all.length - 1] === wrap) close(); } // only the top-most modal closes
       wrap.addEventListener('click', e => { if (e.target.closest('[data-close]')) close(); });
       document.addEventListener('keydown', onKey);
       root.appendChild(wrap);
@@ -297,6 +297,10 @@
     const id = (location.hash || '').replace('#', '') || 'overview';
     const v = views.find(x => x.id === id) || views[0];
     if (!v) return;
+    if (current !== v) { // views share #view: drop the previous view's delegated on* handlers so they cannot fire in the next view
+      const m = document.getElementById('view');
+      if (m) ['onclick', 'onkeydown', 'onchange', 'oninput', 'onsubmit', 'onfocusin', 'onfocusout', 'ondragstart', 'ondragover', 'ondragleave', 'ondrop', 'ondragend', 'onpointerdown', 'onpointermove', 'onpointerup', 'onmouseover', 'onmouseout', 'onmousemove', 'onmouseleave'].forEach(k => { m[k] = null; });
+    }
     current = v;
     renderNav();
     renderCurrent();

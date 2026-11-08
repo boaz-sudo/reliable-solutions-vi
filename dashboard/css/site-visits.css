@@ -3,10 +3,10 @@
 .sv-wrap { display: flex; flex-direction: column; gap: 26px; min-width: 0; }
 
 /* summary strip */
-.sv-stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
-.sv-stat { display: flex; flex-direction: column; gap: 2px; padding: 12px 14px; background: var(--surface); border: 1px solid var(--line); border-left: 3px solid var(--line-strong); border-radius: var(--r-md); min-width: 0; }
+.sv-stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+.sv-stat { display: flex; flex-direction: column; gap: 4px; padding: 14px 16px; background: var(--surface); border: 1px solid var(--line); border-left: 3px solid var(--line-strong); border-radius: var(--r-lg); box-shadow: var(--shadow); min-width: 0; }
 .sv-stat__n { font: 500 var(--t-2xl)/1 var(--serif); font-variant-numeric: tabular-nums; }
-.sv-stat__l { font-size: var(--t-xs); color: var(--fg-3); font-weight: 600; letter-spacing: 0.02em; }
+.sv-stat__l { order: -1; font: 600 var(--t-xs)/1.2 var(--sans); letter-spacing: 0.08em; text-transform: uppercase; color: var(--fg-3); } /* matches .eyebrow, like other views' stat tiles */
 .sv-stat--today { border-left-color: var(--st-site_visit); background: var(--st-site_visit-soft); }
 .sv-stat--warn { border-left-color: var(--warn); }
 .sv-stat--warn .sv-stat__n { color: var(--warn); }

@@ -232,6 +232,7 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 
 /* overlays */
 .modal-wrap, .drawer-wrap { position: fixed; inset: 0; z-index: 50; }
+.modal-wrap { z-index: 55; } /* modals opened from the drawer always stack above it */
 .modal-scrim { position: absolute; inset: 0; background: rgba(7, 13, 24, 0.55); animation: fade 0.18s var(--ease); }
 .modal { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: min(560px, calc(100vw - 24px)); max-height: calc(100vh - 40px); overflow: auto; background: var(--surface); color: var(--fg); border-radius: var(--r-lg); box-shadow: var(--shadow-lg); animation: pop 0.22s var(--ease); }
 .modal--wide { width: min(820px, calc(100vw - 24px)); }
