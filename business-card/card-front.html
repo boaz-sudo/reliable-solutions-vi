@@ -138,6 +138,25 @@
     white-space: nowrap;
   }
   .coords b { color: var(--sky-soft); font-weight: 500; }
+  .owner { text-align: right; line-height: 1; }
+  .owner-name {
+    display: block;
+    font-family: var(--serif);
+    font-size: 11pt;
+    font-weight: 500;
+    letter-spacing: -0.005em;
+    color: #F8FAFC;
+    font-variation-settings: 'opsz' 144;
+  }
+  .owner-role {
+    display: block;
+    margin-top: 4px;
+    font-family: var(--mono);
+    font-size: 6.5pt;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--sky-soft);
+  }
 
   /* Screen preview: center the card on a neutral backdrop */
   @media screen {
@@ -182,8 +201,9 @@
             <span class="lbl">Web</span>   <span class="val">reliablesolutionsvi.com</span>
             <span class="lbl">Base</span>  <span class="val">St. Thomas, U.S. Virgin Islands</span>
           </div>
-          <div class="coords">
-            <b>LOCALLY OWNED</b><br>&amp; OPERATED
+          <div class="owner">
+            <span class="owner-name">Michael Gooding</span>
+            <span class="owner-role">Owner</span>
           </div>
         </div>
       </footer>

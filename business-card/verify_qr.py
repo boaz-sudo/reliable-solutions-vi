@@ -254,7 +254,7 @@ def check_vcf() -> None:
             props.setdefault(key.split(";")[0].upper(), []).append(val)
         ok_frame = lines[:1] == ["BEGIN:VCARD"] and lines[-1:] == ["END:VCARD"]
         record(name, "BEGIN/END", "PASS" if ok_frame else "FAIL", "" if ok_frame else "missing BEGIN/END:VCARD")
-        want = {"FN": CONTACT["org"], "TEL": CONTACT["phone"], "EMAIL": CONTACT["email"]}
+        want = {"FN": CONTACT.get("name", CONTACT["org"]), "ORG": CONTACT["org"], "TEL": CONTACT["phone"], "EMAIL": CONTACT["email"]}
         for key, val in want.items():
             got = props.get(key)
             if not got:

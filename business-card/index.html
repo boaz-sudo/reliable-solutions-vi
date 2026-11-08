@@ -102,6 +102,8 @@
       font-family: var(--serif); font-weight: 600; font-size: clamp(24px, 7.2vw, 30px);
       line-height: 1.08; margin: 0; letter-spacing: -.01em; text-wrap: balance;
     }
+    .owner { margin: 6px 0 0; font-size: 15px; font-weight: 600; color: #F8FAFC; }
+    .owner span { font-weight: 400; color: #7DD3FC; }
     .tagline {
       font-family: var(--serif); font-style: italic; font-weight: 400;
       font-size: clamp(18px, 5.4vw, 21px); line-height: 1.3;
@@ -228,6 +230,7 @@
         <div>
           <p class="eyebrow">Locally owned · St. Thomas</p>
           <h1 id="biz-name">Reliable Solutions VI</h1>
+          <p class="owner">Michael Gooding <span>· Owner</span></p>
         </div>
       </div>
       <p class="tagline">Cameras &amp; networks you can <em>actually</em> rely on.</p>
@@ -339,7 +342,7 @@
         var url = location.href.split('#')[0];
         var data = {
           title: 'Reliable Solutions VI',
-          text: 'Reliable Solutions VI — security cameras & networks in St. Thomas, USVI. (340) 725-1919',
+          text: 'Michael Gooding, Owner — Reliable Solutions VI — security cameras & networks in St. Thomas, USVI. (340) 725-1919',
           url: url
         };
         if (navigator.share) {

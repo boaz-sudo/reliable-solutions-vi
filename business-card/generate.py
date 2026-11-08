@@ -11,6 +11,10 @@ ASSETS.mkdir(exist_ok=True)
 
 # Single source of truth for contact details.
 CONTACT = {
+    "name": "Michael Gooding",
+    "given": "Michael",
+    "family": "Gooding",
+    "role": "Owner",
     "org": "Reliable Solutions VI",
     "title": "Security Cameras & Network Installation",
     "phone": "+13407251919",
@@ -26,9 +30,10 @@ def vcard(c: dict) -> str:
     lines = [
         "BEGIN:VCARD",
         "VERSION:3.0",
-        f"FN:{c['org']}",
+        f"N:{c['family']};{c['given']};;;",
+        f"FN:{c['name']}",
         f"ORG:{c['org']}",
-        f"N:{c['org']};;;;",
+        f"TITLE:{c['role']}",
         f"TEL:{c['phone']}",
         f"EMAIL:{c['email']}",
     ]
