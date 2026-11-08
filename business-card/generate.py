@@ -28,6 +28,8 @@ CONTACT = {
     "url": "https://reliablesolutionsvi.com",
 }
 
+CARD_PAGE_URL = "https://reliablesolutionsvi.com/business-card/"
+
 def vcard(c: dict) -> str:
     lines = [
         "BEGIN:VCARD",
@@ -81,6 +83,12 @@ def main() -> None:
     qr.save(ASSETS / "qr-vcard-mono.svg", scale=10, border=4, dark="#000000", light=None)
     tel = segno.make(f"tel:{CONTACT['phone']}", error="h")
     tel.save(ASSETS / "qr-call.svg", scale=10, border=4, dark="#0F172A", light="#FFFFFF")
+    # QR that opens the live digital business card page.
+    page = segno.make(CARD_PAGE_URL, error="h")
+    page.save(ASSETS / "qr-card-page.svg", scale=10, border=4, dark="#0F172A", light="#FFFFFF")
+    page.save(ASSETS / "qr-card-page.png", scale=40, border=4, dark="#0F172A", light="#FFFFFF")
+    page.save(ASSETS / "qr-card-page-mono.svg", scale=10, border=4, dark="#000000", light=None)
+    print(f"Card page QR: {CARD_PAGE_URL} (version {page.version}, error level {page.error})")
     sync_inline_qr(qr)
     print(f"vCard QR: version {qr.version}, error level {qr.error}, {qr.symbol_size(border=0)[0]} modules")
 

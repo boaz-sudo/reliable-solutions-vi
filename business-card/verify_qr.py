@@ -41,11 +41,11 @@ ASSETS = HERE / "assets"
 RENDER_JS = HERE / "tools" / "render.js"
 sys.dont_write_bytecode = True  # keep the repo free of __pycache__
 sys.path.insert(0, str(HERE))
-from generate import CONTACT, vcard  # noqa: E402
+from generate import CARD_PAGE_URL, CONTACT, vcard  # noqa: E402
 
 VCARD = vcard(CONTACT)
 TEL = f"tel:{CONTACT['phone']}"
-KNOWN = {VCARD: "vCard", TEL: "tel"}
+KNOWN = {VCARD: "vCard", TEL: "tel", CARD_PAGE_URL: "card page URL"}
 
 HTML_PAGES = ["card-back.html", "scan-sign.html", "index.html", "email-signature.html"]
 DEFAULT_VIEWPORT = (1280, 900)          # screen pages without an @page size
@@ -71,6 +71,8 @@ def short(payload: str) -> str:
 
 
 def expected_for(name: str) -> str:
+    if "card-page" in name.lower():
+        return CARD_PAGE_URL
     return TEL if "call" in name.lower() else VCARD
 
 
