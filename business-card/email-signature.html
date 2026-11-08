@@ -17,11 +17,11 @@
   </ol>
   <p style="font-size:13px; line-height:1.5; margin:0 0 16px; padding:10px 12px; background:#FFFFFF; border-left:3px solid #0369A1;">
     <strong>Before you paste for real:</strong> the images point to
-    <code style="font-size:12px;">https://YOUR-DOMAIN/business-card/assets/logo.png</code> and
-    <code style="font-size:12px;">https://YOUR-DOMAIN/business-card/assets/qr-vcard.png</code>.
+    <code style="font-size:12px;">https://reliablesolutionsvi.com/business-card/assets/logo.png</code> and
+    <code style="font-size:12px;">https://reliablesolutionsvi.com/business-card/assets/qr-vcard.png</code>.
     Gmail strips embedded (data:) and SVG images, so these must be public PNG links.
-    Once the website is live, replace <code style="font-size:12px;">YOUR-DOMAIN</code> in this file's source with the real domain, then reopen and copy.
-    In this local preview the images are shown from the local <code style="font-size:12px;">assets/</code> folder so you can see the layout.
+    Copy the signature from the live page at <code style="font-size:12px;">https://reliablesolutionsvi.com/business-card/email-signature.html</code> once this folder is deployed, so the pasted images use those public links.
+    When this file is opened anywhere else (e.g. locally), the images are shown from the local <code style="font-size:12px;">assets/</code> folder for preview only, so don't copy from a local copy.
   </p>
   <p style="margin:0 0 16px;">
     <button type="button" id="select-sig" style="font-family:Arial, Helvetica, sans-serif; font-size:14px; padding:8px 14px; background:#0369A1; color:#FFFFFF; border:0; border-radius:6px; cursor:pointer;">Select signature</button>
@@ -34,7 +34,7 @@
 <table cellpadding="0" cellspacing="0" border="0" width="500" role="presentation" style="border-collapse:collapse; width:500px; font-family:Arial, Helvetica, sans-serif; color:#0F172A;">
   <tr>
     <td valign="top" width="72" style="padding:0 14px 0 0; vertical-align:top; width:72px;">
-      <img src="https://YOUR-DOMAIN/business-card/assets/logo.png" data-local="assets/logo.png" width="64" height="64" alt="Reliable Solutions VI logo" style="display:block; width:64px; height:64px; border:0;">
+      <img src="https://reliablesolutionsvi.com/business-card/assets/logo.png" data-local="assets/logo.png" width="64" height="64" alt="Reliable Solutions VI logo" style="display:block; width:64px; height:64px; border:0;">
     </td>
     <td valign="top" style="padding:0 14px 0 14px; vertical-align:top; border-left:2px solid #0369A1;">
       <div style="font-family:Georgia, 'Times New Roman', serif; font-size:19px; line-height:24px; font-weight:bold; color:#0F172A; margin:0;">Reliable Solutions VI</div>
@@ -42,14 +42,14 @@
       <div style="font-family:Arial, Helvetica, sans-serif; font-size:12px; line-height:18px; color:#334155;">Security cameras &middot; Network installation &amp; management</div>
       <div style="font-family:Arial, Helvetica, sans-serif; font-size:12px; line-height:18px; color:#334155; margin:0 0 6px;">Locally owned &middot; St. Thomas, USVI</div>
       <div style="font-family:Arial, Helvetica, sans-serif; font-size:13px; line-height:20px;">
-        <span style="color:#0369A1; font-weight:bold;">T</span>&nbsp;<a href="tel:+18663783753" style="color:#0F172A; text-decoration:none;">(866) 378-3753</a>
+        <span style="color:#0369A1; font-weight:bold;">T</span>&nbsp;<a href="tel:+13407251919" style="color:#0F172A; text-decoration:none;">(340) 725-1919</a>
       </div>
       <div style="font-family:Arial, Helvetica, sans-serif; font-size:13px; line-height:20px;">
         <span style="color:#0369A1; font-weight:bold;">E</span>&nbsp;<a href="mailto:reliablesolutionsvi@gmail.com" style="color:#0F172A; text-decoration:none;">reliablesolutionsvi@gmail.com</a>
       </div>
     </td>
     <td valign="top" align="center" width="96" style="padding:0 0 0 6px; vertical-align:top; width:96px; text-align:center;">
-      <img src="https://YOUR-DOMAIN/business-card/assets/qr-vcard.png" data-local="assets/qr-vcard.png" width="90" height="90" alt="QR code: save Reliable Solutions VI contact" style="display:block; width:90px; height:90px; border:0; margin:0 auto;">
+      <img src="https://reliablesolutionsvi.com/business-card/assets/qr-vcard.png" data-local="assets/qr-vcard.png" width="90" height="90" alt="QR code: save Reliable Solutions VI contact" style="display:block; width:90px; height:90px; border:0; margin:0 auto;">
       <div style="font-family:Arial, Helvetica, sans-serif; font-size:10px; line-height:14px; color:#64748B; margin-top:4px;">Scan to save contact</div>
     </td>
   </tr>
@@ -59,14 +59,14 @@
 <!-- ===================== SIGNATURE END ===================== -->
 
 <script>
-  // Preview-only helper. The copyable markup above keeps the YOUR-DOMAIN placeholder URLs.
-  // When this file is opened locally (file:// or a non-live host), images are swapped to the
-  // relative assets/ paths so the layout can be previewed. Replace YOUR-DOMAIN in the source
-  // once the site is live; after that, this swap no longer applies.
+  // Preview-only helper. The signature markup uses absolute reliablesolutionsvi.com image URLs
+  // (Gmail needs public PNG links). Off the live site, images are swapped to the relative
+  // assets/ paths so the layout can be previewed; on the live site nothing is swapped.
   (function () {
-    var imgs = document.querySelectorAll('#signature img[data-local]');
+    var live = /(^|\.)reliablesolutionsvi\.com$/.test(location.hostname);
+    var imgs = live ? [] : document.querySelectorAll('#signature img[data-local]');
     for (var i = 0; i < imgs.length; i++) {
-      if (imgs[i].getAttribute('src').indexOf('https://YOUR-DOMAIN/') === 0) {
+      if (imgs[i].getAttribute('src').indexOf('https://reliablesolutionsvi.com/') === 0) {
         imgs[i].setAttribute('src', imgs[i].getAttribute('data-local'));
       }
     }

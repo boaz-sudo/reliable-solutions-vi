@@ -13,14 +13,13 @@ ASSETS.mkdir(exist_ok=True)
 CONTACT = {
     "org": "Reliable Solutions VI",
     "title": "Security Cameras & Network Installation",
-    "phone": "+18663783753",
-    "phone_display": "(866) 378-3753",
+    "phone": "+13407251919",
+    "phone_display": "(340) 725-1919",
     "email": "reliablesolutionsvi@gmail.com",
     "city": "St. Thomas",
     "region": "VI",
     "country": "U.S. Virgin Islands",
-    # Set this once the public domain is live; it will be added to the vCard.
-    "url": "",
+    "url": "https://reliablesolutionsvi.com",
 }
 
 def vcard(c: dict) -> str:
