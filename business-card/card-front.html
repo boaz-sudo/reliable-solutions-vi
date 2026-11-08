@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Reliable Solutions VI — Card Front</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!--
+  Business card FRONT — US standard 3.5in × 2in trim.
+  Page includes 0.125in bleed on every side → 3.75in × 2.25in.
+  All live content sits inside a 0.125in safe margin from trim
+  (i.e. 0.25in from the page edge).
+-->
+<link rel="stylesheet" href="assets/brand.css">
+<style>
+  @page { size: 3.75in 2.25in; margin: 0; }
+
+  /* Fallback tokens in case brand.css is unavailable */
+  :root {
+    --ink: #0F172A; --blue: #0369A1; --blue-deep: #075985;
+    --sky: #38BDF8; --sky-soft: #7DD3FC; --cream: #EEF3F8; --paper: #F8FAFC;
+    --serif: 'Fraunces', Georgia, serif;
+    --sans: 'Inter', system-ui, sans-serif;
+    --mono: 'JetBrains Mono', ui-monospace, monospace;
+    --bleed: 0.125in;
+    --safe: 0.25in;            /* bleed + 0.125in safe margin */
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    width: 3.75in; height: 2.25in;
+    background: var(--ink);
+    -webkit-print-color-adjust: exact; print-color-adjust: exact;
+  }
+
+  .card {
+    position: relative;
+    width: 3.75in; height: 2.25in;
+    overflow: hidden;
+    color: var(--paper);
+    background:
+      radial-gradient(120% 140% at 100% 0%, rgba(3,105,161,0.55) 0%, rgba(3,105,161,0) 55%),
+      radial-gradient(80% 90% at 0% 100%, rgba(56,189,248,0.10) 0%, rgba(56,189,248,0) 60%),
+      var(--ink);
+  }
+
+  /* Faint network grid motif (extends into bleed) */
+  .grid {
+    position: absolute; inset: 0;
+    background-image:
+      linear-gradient(rgba(125,211,252,0.06) 0.5pt, transparent 0.5pt),
+      linear-gradient(90deg, rgba(125,211,252,0.06) 0.5pt, transparent 0.5pt);
+    background-size: 0.25in 0.25in;
+    background-position: var(--bleed) var(--bleed);
+    -webkit-mask-image: linear-gradient(115deg, transparent 35%, #000 85%);
+            mask-image: linear-gradient(115deg, transparent 35%, #000 85%);
+  }
+
+  /* Sky accent stripe running full bleed along the left edge */
+  .stripe {
+    position: absolute; top: 0; bottom: 0; left: 0;
+    width: calc(var(--bleed) + 0.05in);
+    background: linear-gradient(180deg, var(--sky) 0%, var(--blue) 100%);
+  }
+
+  .safe {
+    position: absolute;
+    top: var(--safe); right: var(--safe); bottom: var(--safe); left: var(--safe);
+    display: flex; flex-direction: column; justify-content: space-between;
+  }
+
+  /* ---- Brand block ---- */
+  .brand { display: flex; align-items: center; gap: 0.1in; }
+  .brand svg { width: 0.44in; height: 0.44in; flex: none; display: block; }
+  .name {
+    font-family: var(--serif);
+    font-variation-settings: "opsz" 72;
+    font-weight: 500;
+    font-size: 15.5pt;
+    line-height: 1;
+    letter-spacing: -0.01em;
+    color: var(--paper);
+    white-space: nowrap;
+  }
+  .name em { font-style: italic; font-weight: 400; color: var(--sky); }
+  .kicker {
+    margin-top: 3.5pt;
+    font-family: var(--mono);
+    font-size: 6.5pt;
+    font-weight: 500;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--sky-soft);
+    white-space: nowrap;
+  }
+
+  .tagline {
+    margin-top: 0.1in;
+    font-family: var(--serif);
+    font-style: italic;
+    font-weight: 300;
+    font-size: 9pt;
+    line-height: 1.2;
+    color: var(--cream);
+    opacity: 0.92;
+  }
+
+  /* ---- Contact block ---- */
+  .rule {
+    height: 0.5pt;
+    background: linear-gradient(90deg, rgba(125,211,252,0.7), rgba(125,211,252,0.08));
+    margin-bottom: 5pt;
+  }
+  .contact { display: flex; justify-content: space-between; align-items: flex-end; }
+  .rows { display: grid; grid-template-columns: auto 1fr; column-gap: 7pt; row-gap: 2.2pt; align-items: baseline; }
+  .lbl {
+    font-family: var(--mono);
+    font-size: 6.5pt;
+    font-weight: 500;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--sky);
+  }
+  .val {
+    font-family: var(--sans);
+    font-size: 7.5pt;
+    font-weight: 500;
+    color: var(--paper);
+    white-space: nowrap;
+  }
+  .val.tel { font-family: var(--mono); font-size: 8pt; font-weight: 500; letter-spacing: 0.02em; }
+  .coords {
+    text-align: right;
+    font-family: var(--mono);
+    font-size: 6.5pt;
+    line-height: 1.45;
+    letter-spacing: 0.08em;
+    color: rgba(238,243,248,0.55);
+    white-space: nowrap;
+  }
+  .coords b { color: var(--sky-soft); font-weight: 500; }
+
+  /* Screen preview: center the card on a neutral backdrop */
+  @media screen {
+    html, body { width: auto; height: auto; min-height: 100vh; background: #CBD5E1; }
+    body { display: grid; place-items: center; }
+    .card { box-shadow: 0 10px 40px rgba(15,23,42,0.35); }
+  }
+</style>
+</head>
+<body>
+  <main class="card" aria-label="Reliable Solutions VI business card, front">
+    <div class="grid" aria-hidden="true"></div>
+    <div class="stripe" aria-hidden="true"></div>
+
+    <div class="safe">
+      <header>
+        <div class="brand">
+          <svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Reliable Solutions VI shield logo">
+            <defs><linearGradient id="rsviShieldFront" x1="8" y1="4" x2="40" y2="44" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#1E3A5F"/><stop offset="1" stop-color="#0369A1"/></linearGradient></defs>
+            <path d="M24 3 L41 9 V23.5 C41 34 33.5 41.2 24 45 C14.5 41.2 7 34 7 23.5 V9 Z" fill="url(#rsviShieldFront)" stroke="rgba(125,211,252,0.55)" stroke-width="1"/>
+            <circle cx="24" cy="22" r="8" fill="none" stroke="#F8FAFC" stroke-width="2.4"/>
+            <circle cx="24" cy="22" r="3.1" fill="#38BDF8"/>
+            <circle cx="24" cy="9.4" r="2.1" fill="#7DD3FC"/>
+            <circle cx="35.2" cy="28.5" r="2.1" fill="#7DD3FC"/>
+            <circle cx="12.8" cy="28.5" r="2.1" fill="#7DD3FC"/>
+            <g stroke="#7DD3FC" stroke-width="1.5" opacity="0.75" stroke-linecap="round"><line x1="24" y1="11.5" x2="24" y2="14"/><line x1="33.4" y1="27.3" x2="31.2" y2="25.9"/><line x1="14.6" y1="27.3" x2="16.8" y2="25.9"/></g>
+          </svg>
+          <div>
+            <h1 class="name">Reliable Solutions <em>VI</em></h1>
+            <p class="kicker">Security &amp; Network · St. Thomas</p>
+          </div>
+        </div>
+        <p class="tagline">Cameras &amp; networks you can actually rely on.</p>
+      </header>
+
+      <footer>
+        <div class="rule"></div>
+        <div class="contact">
+          <div class="rows">
+            <span class="lbl">Tel</span>   <span class="val tel">(866) 378-3753</span>
+            <span class="lbl">Email</span> <span class="val">reliablesolutionsvi@gmail.com</span>
+            <span class="lbl">Base</span>  <span class="val">St. Thomas, U.S. Virgin Islands</span>
+          </div>
+          <div class="coords">
+            <b>LOCALLY OWNED</b><br>18.34°N · 64.93°W
+          </div>
+        </div>
+      </footer>
+    </div>
+  </main>
+</body>
+</html>
