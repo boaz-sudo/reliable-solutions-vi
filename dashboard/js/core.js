@@ -112,10 +112,130 @@
     db.reviews = (db.reviews || []).map(normalizeReview);
     db.meta = db.meta || {};
   }
+  function notify(reason) { listeners.forEach(fn => { try { fn(reason); } catch (e) { console.error(e); } }); }
   function commit(reason) {
-    writeRaw(db);
-    listeners.forEach(fn => { try { fn(reason); } catch (e) { console.error(e); } });
+    writeRaw(db);          // local cache (and the whole store when there is no shared database)
+    sync.push();           // shared database: write only the documents that changed
+    notify(reason);
   }
+
+  /* ---------- shared database sync (claude.ai db capability) ----------
+   * Layout: clients/<clientId>, reviews/<reviewId>, app/meta.
+   * The page renders from an in-memory copy; commit() diffs it against what the
+   * database last confirmed and writes only changed documents, one write at a
+   * time per document. Snapshots from other devices replace the copy, except for
+   * documents with a local write still in flight.
+   */
+  const sync = (function () {
+    let cloud = null;                 // db namespace when shared sync is on
+    let mode = 'local';               // 'local' | 'connecting' | 'cloud' | 'offline'
+    let saving = 0;
+    const synced = { clients: new Map(), reviews: new Map(), app: new Map() }; // id -> JSON last confirmed
+    const pending = new Map();        // "col/id" -> count of writes in flight
+    const chains = new Map();         // "col/id" -> promise chain (one write at a time per doc)
+    let first = { clients: false, reviews: false, app: false };
+    let loadTimer = null;
+    const statusListeners = new Set();
+
+    function status() { return { mode, saving }; }
+    function setMode(m) { mode = m; statusListeners.forEach(fn => { try { fn(status()); } catch (e) {} }); }
+    function key(col, id) { return col + '/' + id; }
+    function localDocs() {
+      const m = { clients: new Map(), reviews: new Map(), app: new Map() };
+      db.clients.forEach(c => m.clients.set(c.id, c));
+      db.reviews.forEach(r => m.reviews.set(r.id, r));
+      m.app.set('meta', db.meta || {});
+      return m;
+    }
+    function current(col, id) { const m = localDocs()[col]; return m.has(id) ? m.get(id) : undefined; }
+
+    function enqueue(col, id) {
+      const k = key(col, id);
+      pending.set(k, (pending.get(k) || 0) + 1);
+      saving++; setMode(mode);
+      const run = async () => {
+        const body = current(col, id);
+        const json = body === undefined ? null : JSON.stringify(body);
+        if (json === (synced[col].has(id) ? synced[col].get(id) : null)) return;
+        const ref = cloud.collection(col).doc(id);
+        try {
+          if (body === undefined) await ref.delete(); else await ref.set(JSON.parse(json));
+        } catch (e) {
+          if (e && e.code === 'unavailable') { await new Promise(r => setTimeout(r, 400 + Math.random() * 800)); if (body === undefined) await ref.delete(); else await ref.set(JSON.parse(json)); }
+          else throw e;
+        }
+        if (json === null) synced[col].delete(id); else synced[col].set(id, json);
+      };
+      const next = (chains.get(k) || Promise.resolve()).then(run).catch(e => {
+        console.error('Save failed', col, id, e);
+        const msg = e && e.code === 'quota_exceeded' ? 'The shared database is full. Delete old clients or photos, then try again.'
+          : e && (e.code === 'invalid_argument' || e.code === 'not_granted') ? 'You can view these clients but not change them.'
+          : 'A change could not be saved to the shared database. It is kept on this device; reload to retry.';
+        ui.toast(msg, 'err');
+      }).finally(() => {
+        const n = (pending.get(k) || 1) - 1; if (n) pending.set(k, n); else pending.delete(k);
+        saving = Math.max(0, saving - 1); setMode(mode);
+      });
+      chains.set(k, next);
+    }
+
+    function push() {
+      if (!cloud || mode === 'connecting') return;
+      const local = localDocs();
+      ['clients', 'reviews', 'app'].forEach(col => {
+        local[col].forEach((doc, id) => { if (JSON.stringify(doc) !== synced[col].get(id)) enqueue(col, id); });
+        synced[col].forEach((_, id) => { if (!local[col].has(id)) enqueue(col, id); });
+      });
+    }
+
+    function apply(col, snap) {
+      if (!snap.metadata.fromCache) first[col] = true;
+      const keepLocal = id => pending.has(key(col, id));
+      if (col === 'app') {
+        const d = snap.docs.find(x => x.id === 'meta');
+        synced.app.clear();
+        if (d) { synced.app.set('meta', JSON.stringify(d.data())); if (!keepLocal('meta')) db.meta = JSON.parse(JSON.stringify(d.data())); }
+      } else {
+        const norm = col === 'clients' ? normalizeClient : normalizeReview;
+        const localById = new Map((col === 'clients' ? db.clients : db.reviews).map(x => [x.id, x]));
+        const next = [];
+        synced[col].clear();
+        snap.docs.forEach(d => {
+          const body = norm(JSON.parse(JSON.stringify(d.data())));
+          body.id = d.id;
+          synced[col].set(d.id, JSON.stringify(body));
+          next.push(keepLocal(d.id) && localById.has(d.id) ? localById.get(d.id) : body);
+        });
+        // keep local-only docs whose create is still in flight
+        localById.forEach((x, id) => { if (keepLocal(id) && !next.find(n => n.id === id)) next.push(x); });
+        if (col === 'clients') { next.sort((a, b) => (b.createdAt || '').localeCompare(a.createdAt || '')); db.clients = next; }
+        else { next.sort((a, b) => String(b.at || '').localeCompare(String(a.at || ''))); db.reviews = next; }
+      }
+      writeRaw(db);
+      if (first.clients && first.reviews && first.app) {
+        if (loadTimer) { clearTimeout(loadTimer); loadTimer = null; }
+        if (mode !== 'cloud') setMode('cloud');
+      }
+      notify('sync:' + col);
+    }
+
+    async function start() {
+      if (!(window.claude && typeof window.claude.use === 'function')) return false;
+      setMode('connecting');
+      let handle = null;
+      try { handle = await window.claude.use('db'); } catch (e) { handle = null; }
+      if (!handle) { setMode('local'); return false; }
+      cloud = handle;
+      loadTimer = setTimeout(() => { if (mode === 'connecting') setMode('offline'); }, 10000);
+      const onErr = col => e => { console.error('Sync stopped', col, e); setMode('offline'); ui.toast('Lost connection to the shared database. Changes stay on this device until you reload.', 'warn'); };
+      cloud.collection('clients').onSnapshot(s => apply('clients', s), onErr('clients'));
+      cloud.collection('reviews').onSnapshot(s => apply('reviews', s), onErr('reviews'));
+      cloud.collection('app').onSnapshot(s => apply('app', s), onErr('app'));
+      return true;
+    }
+
+    return { start, push, status, onStatus(fn) { statusListeners.add(fn); fn(status()); return () => statusListeners.delete(fn); }, get cloud() { return !!cloud; } };
+  })();
 
   const store = {
     STORAGE_KEY,
@@ -191,6 +311,70 @@
     replaceAll(clients, reviews, meta) { db = { version: 1, clients: clients.map(normalizeClient), reviews: (reviews || []).map(normalizeReview), meta: Object.assign({ createdAt: util.nowISO() }, meta || {}) }; commit('db:replace'); },
     clearAll() { db = emptyDB(); db.meta.seeded = true; commit('db:clear'); },
     isEmpty() { return db.clients.length === 0 && db.reviews.length === 0; },
+  };
+
+  /* ---------- photos ----------
+   * Shared mode: photos upload to the artifact's file storage and the client record keeps
+   * {assetId}. This-device mode: photos are shrunk and kept inline as {dataUrl}.
+   */
+  const photos = {
+    assets: null,
+    _ready: null,
+    ready() {
+      if (!this._ready) this._ready = (async () => {
+        if (window.claude && typeof window.claude.use === 'function') { try { this.assets = await window.claude.use('assets'); } catch (e) { this.assets = null; } }
+        return this.assets;
+      })();
+      return this._ready;
+    },
+    src(p) { return p ? (p.assetId ? '/_blob/' + p.assetId : (p.dataUrl || '')) : ''; },
+    inlineBytes(list) { return (list || []).reduce((n, p) => n + ((p && p.dataUrl) ? p.dataUrl.length : 0), 0); },
+    /** true when photos go to shared storage */
+    get shared() { return sync.cloud; },
+    _scale(file, maxPx, quality) {
+      return new Promise((resolve, reject) => {
+        const url = URL.createObjectURL(file);
+        const img = new Image();
+        img.onerror = () => { URL.revokeObjectURL(url); reject(new Error((file.name || 'That file') + ' is not a readable image')); };
+        img.onload = () => {
+          URL.revokeObjectURL(url);
+          const k = Math.min(1, maxPx / Math.max(img.naturalWidth || 1, img.naturalHeight || 1));
+          const w = Math.max(1, Math.round(img.naturalWidth * k)), h = Math.max(1, Math.round(img.naturalHeight * k));
+          const cv = document.createElement('canvas'); cv.width = w; cv.height = h;
+          const ctx = cv.getContext('2d'); ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, w, h); ctx.drawImage(img, 0, 0, w, h);
+          cv.toBlob(b => b ? resolve({ blob: b, w, h, dataUrl: null, cv }) : reject(new Error('Could not compress the photo')), 'image/jpeg', quality);
+        };
+        img.src = url;
+      });
+    },
+    /** Turn a picked/captured file into a stored photo record. Rejects with a readable Error. */
+    async fromFile(file) {
+      if (file.type && !/^image\//.test(file.type)) throw new Error((file.name || 'That file') + ' is not an image');
+      const base = { id: util.uid('ph'), name: file.name || 'Site photo', caption: '', at: util.nowISO() };
+      if (this.shared) {
+        const assets = await this.ready();
+        if (!assets) throw new Error('Only people who can edit this dashboard can add photos.');
+        const { blob, w, h } = await this._scale(file, 1600, 0.82);
+        try {
+          const r = await assets.upload(blob, { type: 'image/jpeg' });
+          return Object.assign(base, { assetId: r.id, w, h, bytes: r.sizeBytes });
+        } catch (e) {
+          const msg = e && e.code === 'quota_or_state' ? 'Photo storage is full. Remove old photos to add new ones.'
+            : e && e.code === 'too_large' ? 'That photo is too large to upload.'
+            : e && e.code === 'rate_limited' ? 'Too many uploads at once. Wait a moment and try again.'
+            : 'The photo could not be uploaded. Check your connection and try again.';
+          throw new Error(msg);
+        }
+      }
+      const { cv, w, h } = await this._scale(file, 800, 0.7);
+      return Object.assign(base, { dataUrl: cv.toDataURL('image/jpeg', 0.7), w, h });
+    },
+    /** Permanently remove an uploaded photo file (call after the record no longer points at it). */
+    async discard(p) {
+      if (!p || !p.assetId) return;
+      const assets = await this.ready(); if (!assets) return;
+      try { await assets.delete(p.assetId); } catch (e) { console.warn('Photo file not removed', e); }
+    },
   };
 
   /* ---------- UI helpers ---------- */
@@ -271,6 +455,7 @@
         mail: '<rect x="3" y="5" width="18" height="14" rx="1.5"/><path d="m3.5 6 8.5 7 8.5-7"/>',
         message: '<path d="M4 5h16v11H9l-5 4z"/>', calendar: '<rect x="3.5" y="5" width="17" height="15.5" rx="1.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/>',
         note: '<path d="M5 3.5h10l4 4V20.5H5z"/><path d="M14.5 3.5v4.5h4.5M8 12h8M8 16h5"/>', arrow: '<path d="M5 12h14M13 6l6 6-6 6"/>',
+        photo: '<path d="M4 7.5h3l1.6-2.5h6.8L17 7.5h3a1 1 0 0 1 1 1V19a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V8.5a1 1 0 0 1 1-1z"/><circle cx="12" cy="13" r="3.8"/>',
         camera: '<rect x="2.5" y="7" width="13" height="10" rx="1.5"/><path d="m15.5 10.5 6-3v9l-6-3"/>', wifi: '<path d="M2.5 9a14 14 0 0 1 19 0M5.5 12.5a9.5 9.5 0 0 1 13 0M8.7 16a5 5 0 0 1 6.6 0"/><circle cx="12" cy="19" r="1"/>',
         switch: '<rect x="2.5" y="8" width="19" height="8" rx="1.5"/><path d="M6 12h.01M9 12h.01M12 12h.01M15 12h.01"/>', router: '<rect x="3" y="13" width="18" height="6" rx="1.5"/><path d="M7 13 5 6M17 13l2-7M7 16h.01M10 16h.01"/>',
         edit: '<path d="M4 20h4L19 9l-4-4L4 16z"/><path d="m13.5 6.5 4 4"/>', trash: '<path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/>',
@@ -347,15 +532,29 @@
   };
 
   /* ---------- boot ---------- */
-  function boot() {
+  function renderSync(st) {
+    const el = document.getElementById('sync-status'); if (!el) return;
+    const map = {
+      local: ['local', 'Saved on this device'],
+      connecting: ['busy', 'Connecting to shared database…'],
+      cloud: st.saving ? ['busy', 'Saving…'] : ['ok', 'Synced across your devices'],
+      offline: ['warn', 'Not connected — changes kept on this device'],
+    };
+    const [cls, text] = map[st.mode] || map.local;
+    el.className = 'sync sync--' + cls; el.textContent = text;
+  }
+  async function boot() {
     load();
-    if (store.isEmpty() && !db.meta.seeded && RS.seed) RS.seed(); // seed.js provides demo data on first run
+    const shared = !!(window.claude && typeof window.claude.use === 'function');
+    if (!shared && store.isEmpty() && !db.meta.seeded && RS.seed) RS.seed(); // seed.js provides demo data on first run (this-device mode only)
+    sync.onStatus(renderSync);
+    if (shared) sync.start().then(ok => { if (!ok && store.isEmpty() && !db.meta.seeded && RS.seed) RS.seed(); });
     document.getElementById('quick-add').addEventListener('click', () => RS.newAssessment());
     store.subscribe(() => { renderNav(); renderCurrent(); });
     window.addEventListener('hashchange', route);
     route();
   }
 
-  window.RS = Object.assign(window.RS || {}, { STAGES, SERVICES, EQUIPMENT, ISLANDS, SOURCES, ACTIVITY_TYPES, REVIEW_SOURCES, util, store, ui, registerView, navTo, rerender: renderCurrent, boot }, hooks);
+  window.RS = Object.assign(window.RS || {}, { STAGES, SERVICES, EQUIPMENT, ISLANDS, SOURCES, ACTIVITY_TYPES, REVIEW_SOURCES, util, store, ui, sync, photos, registerView, navTo, rerender: renderCurrent, boot }, hooks);
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', () => RS.boot()); else setTimeout(() => RS.boot(), 0);
 })();

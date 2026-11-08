@@ -20,8 +20,6 @@
     { id: 'remote_view',    label: 'Remote viewing app set up plan' },
   ];
   const EQ_ICON = { cameras: 'camera', accessPoints: 'wifi', switches: 'switch', routers: 'router' };
-  const PHOTO_LIMIT = 3 * 1024 * 1024; // characters of data URL ≈ bytes in localStorage
-  const MAX_PX = 800;
 
   /* ---------- helpers ---------- */
   function addDays(str, n) {
@@ -34,8 +32,7 @@
     return util.fmtDate(dateStr, { weekday: 'long', month: 'short', day: 'numeric' });
   }
   function checksDone(sv) { const c = (sv && sv.checklist) || {}; return CHECKS.filter(k => c[k.id]).length; }
-  function photoBytes(list) { return (list || []).reduce((s, p) => s + ((p && p.dataUrl) ? p.dataUrl.length : 0), 0); }
-  function fmtMB(n) { return (n / (1024 * 1024)).toFixed(n < 1024 * 1024 ? 2 : 1) + ' MB'; }
+  function photoN(c) { const n = ((c.siteVisit && c.siteVisit.photos) || []).length; return n ? ' <span class="sv-photo-n mono">' + n + '</span>' : ''; }
   function placeLine(c) { return [c.address, c.island].filter(Boolean).join(' · '); }
   function isScheduled(c) { return c.siteVisit && c.siteVisit.status === 'scheduled' && c.siteVisit.date; }
   function needsReportCount() {
@@ -158,27 +155,114 @@
     });
   }
 
-  /* ---------- photo handling ---------- */
-  function downscale(file) {
-    return new Promise((resolve, reject) => {
-      const fr = new FileReader();
-      fr.onerror = () => reject(new Error('Could not read ' + file.name));
-      fr.onload = () => {
-        const img = new Image();
-        img.onerror = () => reject(new Error(file.name + ' is not a readable image'));
-        img.onload = () => {
-          const scale = Math.min(1, MAX_PX / Math.max(img.naturalWidth || 1, img.naturalHeight || 1));
-          const w = Math.max(1, Math.round(img.naturalWidth * scale)), hgt = Math.max(1, Math.round(img.naturalHeight * scale));
-          const cv = document.createElement('canvas'); cv.width = w; cv.height = hgt;
-          const ctx = cv.getContext('2d');
-          ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, w, hgt); // JPEG has no alpha
-          ctx.drawImage(img, 0, 0, w, hgt);
-          resolve({ name: file.name, dataUrl: cv.toDataURL('image/jpeg', 0.7) });
-        };
-        img.src = fr.result;
-      };
-      fr.readAsDataURL(file);
+  /* ---------- photos: take / upload / view ----------
+   * pickerHtml(prefix) + bindPicker(...) render a photo grid with "Take photo" (opens the
+   * phone camera through the file picker) and "Upload photos". Photos are stored by
+   * RS.photos (shared file storage when synced, inline on this device otherwise).
+   */
+  function pickerHtml(prefix) {
+    const hint = RS.photos.shared
+      ? 'Photos upload to your shared dashboard and appear on every device.'
+      : 'Photos are kept on this device. Up to 3 MB total.';
+    return '<div class="sv-photos" id="' + prefix + '-photos"></div>' +
+      '<div class="sv-photo-btns">' +
+        '<label class="btn btn--primary sv-photo-add" for="' + prefix + '-cam">' + ui.icon('camera') + 'Take photo</label>' +
+        '<input class="visually-hidden" type="file" id="' + prefix + '-cam" accept="image/*" capture="environment">' +
+        '<label class="btn sv-photo-add" for="' + prefix + '-file">' + ui.icon('upload') + 'Upload photos</label>' +
+        '<input class="visually-hidden" type="file" id="' + prefix + '-file" accept="image/*" multiple>' +
+      '</div>' +
+      '<p class="field__hint" id="' + prefix + '-photohint" aria-live="polite">' + esc(hint) + '</p>';
+  }
+  function thumbHtml(p, i, editable) {
+    const src = RS.photos.src(p);
+    return '<figure class="sv-photo">' +
+      '<button type="button" class="sv-photo__view" data-view-photo="' + i + '" aria-label="View photo ' + (i + 1) + (p.caption ? ': ' + esc(p.caption) : '') + '">' +
+        (src ? '<img src="' + esc(src) + '" alt="" loading="lazy">' : '<span class="sv-photo__missing">Photo unavailable</span>') + '</button>' +
+      (editable ? '<input class="sv-photo__cap" id="sv-cap-' + esc(p.id || i) + '" data-cap="' + i + '" value="' + esc(p.caption || '') + '" placeholder="Add a caption" aria-label="Caption for photo ' + (i + 1) + '">' : (p.caption ? '<figcaption>' + esc(p.caption) + '</figcaption>' : '')) +
+      (editable ? '<button type="button" class="sv-photo__rm" data-rm="' + i + '" aria-label="Remove photo ' + (i + 1) + '">' + ui.icon('x') + '</button>' : '') +
+      '</figure>';
+  }
+  function viewPhoto(list, i) {
+    let idx = i;
+    const m = ui.modal({ title: 'Photo', wide: true, body: '<div class="sv-lightbox"><img id="sv-lb-img" alt=""><p class="sv-lightbox__cap" id="sv-lb-cap"></p><div class="modal__foot"><span class="mono muted" id="sv-lb-n"></span><span class="toolbar__spacer"></span><button type="button" class="btn" data-lb="-1">Previous</button><button type="button" class="btn" data-lb="1">Next</button></div></div>' });
+    const show = () => {
+      const p = list[idx];
+      m.body.querySelector('#sv-lb-img').src = RS.photos.src(p);
+      m.body.querySelector('#sv-lb-img').alt = p.caption || 'Site photo ' + (idx + 1);
+      m.body.querySelector('#sv-lb-cap').textContent = [p.caption, p.at ? util.fmtDate(p.at) : ''].filter(Boolean).join(' · ');
+      m.body.querySelector('#sv-lb-n').textContent = (idx + 1) + ' of ' + list.length;
+    };
+    m.body.addEventListener('click', e => { const b = e.target.closest('[data-lb]'); if (!b) return; idx = (idx + Number(b.dataset.lb) + list.length) % list.length; show(); });
+    show();
+  }
+  /**
+   * Wire a picker inside root. get() returns the current list; set(list) stores a new list.
+   * onRemove(photo) is told about removed photos (so their files can be deleted once saved).
+   * Returns { busy(): number } — uploads still running.
+   */
+  function bindPicker(root, prefix, get, set, onRemove) {
+    const box = root.querySelector('#' + prefix + '-photos'), hint = root.querySelector('#' + prefix + '-photohint');
+    let busy = 0;
+    const baseHint = hint.textContent;
+    function render() {
+      const list = get();
+      box.innerHTML = list.map((p, i) => thumbHtml(p, i, true)).join('') + (busy ? '<div class="sv-photo sv-photo--busy" role="status"><span>Uploading ' + busy + '…</span></div>' : '');
+      if (!list.length && !busy) box.innerHTML = '<p class="sv-photo-empty">No photos yet. Take a photo of each camera spot, the network closet and the ISP modem.</p>';
+    }
+    function say(text, warn) { hint.textContent = text; hint.classList.toggle('is-warn', !!warn); }
+    async function addFiles(files) {
+      if (!files.length) return;
+      let added = 0, failed = [];
+      busy += files.length; render();
+      for (const f of files) {
+        try {
+          const p = await RS.photos.fromFile(f);
+          if (!RS.photos.shared && RS.photos.inlineBytes(get()) + (p.dataUrl || '').length > 3 * 1024 * 1024) throw new Error('Photo storage on this device is full (3 MB). Remove a photo to add another.');
+          set(get().concat([p])); added++;
+        } catch (e) { failed.push(e.message || 'A photo could not be added.'); }
+        busy--; render();
+      }
+      if (failed.length) { say(failed[0], true); ui.toast(failed[0], 'warn'); }
+      else say(added + ' photo' + (added === 1 ? '' : 's') + ' added. ' + baseHint);
+    }
+    ['-cam', '-file'].forEach(sfx => {
+      const input = root.querySelector('#' + prefix + sfx);
+      input.addEventListener('change', () => { const files = Array.from(input.files || []); input.value = ''; addFiles(files); });
     });
+    box.addEventListener('click', e => {
+      const rm = e.target.closest('[data-rm]');
+      if (rm) { const list = get().slice(); const [gone] = list.splice(Number(rm.dataset.rm), 1); set(list); if (onRemove) onRemove(gone); render(); say('Photo removed.'); return; }
+      const v = e.target.closest('[data-view-photo]'); if (v) viewPhoto(get(), Number(v.dataset.viewPhoto));
+    });
+    box.addEventListener('change', e => {
+      const c = e.target.closest('[data-cap]'); if (!c) return;
+      const list = get().slice(); const i = Number(c.dataset.cap);
+      list[i] = Object.assign({}, list[i], { caption: c.value.trim() }); set(list);
+    });
+    // drag photos from a computer onto the grid
+    box.addEventListener('dragover', e => { e.preventDefault(); box.classList.add('is-drop'); });
+    box.addEventListener('dragleave', () => box.classList.remove('is-drop'));
+    box.addEventListener('drop', e => { e.preventDefault(); box.classList.remove('is-drop'); addFiles(Array.from(e.dataTransfer.files || []).filter(f => /^image\//.test(f.type))); });
+    render();
+    return { busy: () => busy };
+  }
+
+  /** Photos for a client's site visit, saved as soon as they are added (usable before, during or after the visit). */
+  function visitPhotos(clientId) {
+    const c0 = store.getClient(clientId);
+    if (!c0) { ui.toast('That client could not be found', 'err'); return; }
+    const getList = () => { const c = store.getClient(clientId); return (c && c.siteVisit && Array.isArray(c.siteVisit.photos)) ? c.siteVisit.photos : []; };
+    const m = ui.modal({
+      title: 'Site photos — ' + c0.name, wide: true,
+      body: '<div class="sv-photo-modal"><p class="muted">' + esc([c0.address, c0.island].filter(Boolean).join(' · ') || 'No address on file') + '</p>' + pickerHtml('sv-p') +
+        '<div class="modal__foot"><button type="button" class="btn btn--primary" data-close>Done</button></div></div>',
+    });
+    let lastCount = getList().length;
+    bindPicker(m.body, 'sv-p', getList, list => {
+      store.updateClient(clientId, { siteVisit: { photos: list } });
+      if (list.length > lastCount) store.addActivity(clientId, { type: 'note', text: 'Added ' + (list.length - lastCount) + ' site photo' + (list.length - lastCount === 1 ? '' : 's') });
+      lastCount = list.length;
+    }, p => RS.photos.discard(p));
   }
 
   /* ---------- record (report) modal ---------- */
@@ -229,11 +313,8 @@
           <textarea class="textarea" id="sv-r-notes" name="notes" rows="4" placeholder="What you found, risks, what the client asked for">${findings0}</textarea></div>
 
         <fieldset class="sv-fs">
-          <legend class="sv-legend">Photos <span class="sv-count mono" id="sv-r-photosize"></span></legend>
-          <div class="sv-photos" id="sv-r-photos"></div>
-          <label class="btn sv-photo-add" for="sv-r-file">${raw(ui.icon('camera'))}Add photos</label>
-          <input class="visually-hidden" type="file" id="sv-r-file" accept="image/*" multiple>
-          <p class="field__hint" id="sv-r-photohint">Photos are shrunk to 800 px. Up to 3 MB total fits in browser storage.</p>
+          <legend class="sv-legend">Photos <span class="sv-count mono" id="sv-r-photocount"></span></legend>
+          ${raw(pickerHtml('sv-r'))}
         </fieldset>
 
         <fieldset class="sv-fs" aria-describedby="sv-r-outcome-err">
@@ -264,37 +345,10 @@
     const refreshChecks = () => { countEl.textContent = form.querySelectorAll('[data-check]:checked').length + '/' + CHECKS.length; };
     refreshChecks();
 
-    const photoBox = form.querySelector('#sv-r-photos'), sizeEl = form.querySelector('#sv-r-photosize'), hint = form.querySelector('#sv-r-photohint');
-    function renderPhotos() {
-      photoBox.innerHTML = photos.map((p, i) => '<figure class="sv-photo"><img src="' + esc(p.dataUrl) + '" alt="' + esc(p.name || 'Site photo ' + (i + 1)) + '"><button type="button" class="sv-photo__rm" data-rm="' + i + '" aria-label="Remove photo ' + esc(p.name || i + 1) + '">' + ui.icon('x') + '</button></figure>').join('');
-      const bytes = photoBytes(photos);
-      sizeEl.textContent = photos.length ? photos.length + ' · ' + fmtMB(bytes) : '';
-      sizeEl.classList.toggle('is-warn', bytes > PHOTO_LIMIT * 0.8);
-    }
-    renderPhotos();
-    photoBox.addEventListener('click', e => {
-      const b = e.target.closest('[data-rm]'); if (!b) return;
-      photos.splice(Number(b.dataset.rm), 1); renderPhotos();
-      hint.classList.remove('is-warn'); hint.textContent = 'Photo removed.';
-    });
-    const fileInput = form.querySelector('#sv-r-file');
-    fileInput.addEventListener('change', async () => {
-      const files = Array.from(fileInput.files || []); fileInput.value = '';
-      let added = 0, refused = 0;
-      for (const f of files) {
-        if (f.type && !/^image\//.test(f.type)) { refused++; continue; }
-        try {
-          const p = await downscale(f);
-          if (photoBytes(photos) + p.dataUrl.length > PHOTO_LIMIT) { refused++; continue; }
-          photos.push(p); added++; renderPhotos();
-        } catch (err) { refused++; }
-      }
-      if (refused) {
-        hint.classList.add('is-warn');
-        hint.textContent = refused + ' photo' + (refused > 1 ? 's' : '') + ' not added: photos are limited to 3 MB total so the report fits in browser storage. Remove a photo to add another.';
-        ui.toast('Photo storage is full (3 MB)', 'warn');
-      } else if (added) { hint.classList.remove('is-warn'); hint.textContent = added + ' photo' + (added > 1 ? 's' : '') + ' added.'; }
-    });
+    const photoCount = form.querySelector('#sv-r-photocount');
+    const removed = [];
+    const picker = bindPicker(form, 'sv-r', () => photos, list => { photos = list; photoCount.textContent = photos.length ? String(photos.length) : ''; }, p => removed.push(p));
+    photoCount.textContent = photos.length ? String(photos.length) : '';
 
     const followBox = form.querySelector('#sv-r-followbox'), declineBox = form.querySelector('#sv-r-declinebox');
     form.addEventListener('change', e => {
@@ -323,6 +377,7 @@
         if (f) { f.focus(); if (f.scrollIntoView) f.scrollIntoView({ block: 'center' }); }
         return;
       }
+      if (picker.busy()) { ui.toast('Wait for the photos to finish uploading, then save.', 'warn'); return; }
       const checklist = {}; CHECKS.forEach(k => { checklist[k.id] = !!form.querySelector('#sv-chk-' + k.id).checked; });
       const done = CHECKS.filter(k => checklist[k.id]).length;
       const survey = readCounters(form, 'sv-eq');
@@ -338,6 +393,7 @@
       if (outcome === 'follow') patch.followUpOn = followUpOn;
       if (outcome === 'declined') { patch.priority = 'low'; patch.followUpOn = ''; }
       store.updateClient(c.id, patch);
+      removed.forEach(p => RS.photos.discard(p));
       store.addActivity(c.id, { type: 'meeting', text: 'Site visit completed: ' + done + ' of ' + CHECKS.length + ' checks' });
       if (outcome === 'declined') {
         const why = String(fd.get('declineReason') || '').trim();
@@ -364,6 +420,7 @@
       '</div>' +
       '<div class="sv-row__acts">' +
         '<button type="button" class="btn btn--primary btn--sm" data-act="record" data-id="' + esc(c.id) + '">' + ui.icon('note') + 'Start report</button>' +
+        '<button type="button" class="btn btn--sm" data-act="photos" data-id="' + esc(c.id) + '">' + ui.icon('photo') + 'Photos' + photoN(c) + '</button>' +
         '<button type="button" class="btn btn--sm" data-act="schedule" data-id="' + esc(c.id) + '">' + ui.icon('calendar') + 'Reschedule</button>' +
         '<button type="button" class="btn btn--ghost btn--sm" data-act="open" data-id="' + esc(c.id) + '">Open</button>' +
       '</div></li>';
@@ -426,7 +483,7 @@
           (sv.cableFt ? '<span class="sv-chip mono">' + Number(sv.cableFt) + ' ft cable</span>' : '') +
           (c.quote ? '<span class="sv-chip mono">' + esc(util.fmtMoney(c.quote)) + '</span>' : '') +
           '<span class="sv-row__tech">' + esc(sv.technician || '') + '</span></p></div>' +
-          '<div class="sv-row__acts"><button type="button" class="btn btn--sm" data-act="record" data-id="' + esc(c.id) + '">' + ui.icon('edit') + 'Edit report</button></div></li>';
+          '<div class="sv-row__acts"><button type="button" class="btn btn--sm" data-act="photos" data-id="' + esc(c.id) + '">' + ui.icon('photo') + 'Photos' + photoN(c) + '</button><button type="button" class="btn btn--sm" data-act="record" data-id="' + esc(c.id) + '">' + ui.icon('edit') + 'Edit report</button></div></li>';
       }).join('') + '</ul>';
     } else html += '<p class="sv-none">No site visit reports yet.</p>';
     html += '</section>';
@@ -436,6 +493,7 @@
       const b = e.target.closest('[data-act]'); if (!b || !mount.contains(b)) return;
       const id = b.dataset.id;
       if (b.dataset.act === 'record') RS.recordVisit(id);
+      else if (b.dataset.act === 'photos') RS.visitPhotos(id);
       else if (b.dataset.act === 'schedule') RS.scheduleVisit(id);
       else if (b.dataset.act === 'open') RS.openClient(id);
     };
@@ -443,6 +501,8 @@
 
   RS.scheduleVisit = scheduleVisit;
   RS.recordVisit = recordVisit;
+  RS.visitPhotos = visitPhotos;
+  RS.viewPhoto = viewPhoto;
   RS.SITE_VISIT_CHECKS = CHECKS;
   RS.registerView({
     id: 'site-visits', label: 'Site visits', icon: 'visit', order: 5, render,

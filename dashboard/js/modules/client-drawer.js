@@ -219,7 +219,9 @@
         <p class="eyebrow">Survey vs. requested</p>
         <div class="table-wrap"><table class="table cd-survey"><thead><tr><th scope="col">Equipment</th><th scope="col" class="num">Requested</th><th scope="col" class="num">Survey</th><th scope="col" class="num">Diff</th></tr></thead><tbody>${raw(rows)}</tbody></table></div>
       </div>
-      <div class="cd-sec"><p class="eyebrow">Visit notes</p>${v.notes ? raw(h`<p class="cd-prose">${v.notes}</p>`) : raw('<p class="muted">No visit notes</p>')}</div>`;
+      <div class="cd-sec"><p class="eyebrow">Visit notes</p>${v.notes ? raw(h`<p class="cd-prose">${v.notes}</p>`) : raw('<p class="muted">No visit notes</p>')}</div>
+      <div class="cd-sec"><div class="cd-tabhead"><p class="eyebrow">Site photos${(v.photos || []).length ? ' · ' + v.photos.length : ''}</p><span class="toolbar__spacer"></span>${raw(RS.visitPhotos ? '<button type="button" class="btn btn--sm" data-act="photos">' + ui.icon('photo') + 'Take or upload photos</button>' : '')}</div>
+        ${raw((v.photos || []).length ? '<div class="cd-photos">' + v.photos.map((p, i) => '<button type="button" class="cd-photo" data-act="view-photo" data-i="' + i + '" aria-label="View photo ' + (i + 1) + '"><img src="' + esc(RS.photos.src(p)) + '" alt="' + esc(p.caption || '') + '" loading="lazy"></button>').join('') + '</div>' : '<p class="muted">No photos yet</p>')}</div>`;
   }
 
   function tabJob(c) {
@@ -350,6 +352,8 @@
         case 'next-review': case 'review': RS.addReview(id); break;
         case 'visit': RS.scheduleVisit(id); break;
         case 'record-visit': if (RS.recordVisit) RS.recordVisit(id); break;
+        case 'photos': if (RS.visitPhotos) RS.visitPhotos(id); break;
+        case 'view-photo': { const cl = store.getClient(id); if (RS.viewPhoto && cl) RS.viewPhoto(cl.siteVisit.photos || [], Number(b.dataset.i)); break; }
         case 'log': RS.logActivity(id, b.dataset.type); break;
         case 'edit': RS.editClient(id); break;
         case 'clear-followup': store.updateClient(id, { followUpOn: '' }); ui.toast('Follow-up cleared'); break;

@@ -98,7 +98,7 @@
       if (!data || !Array.isArray(data.clients)) throw new Error('That ' + (label || 'text') + ' is not a Client Desk backup (no "clients" list found).');
     } catch (e) { restoreError = explainParseError(e); paint(); return; }
     const n = RS.store.clients().length, m = data.clients.length;
-    const ok = await RS.ui.confirm('This replaces all ' + plural(n, 'client') + ' on this device with the ' + plural(m, 'client') + ' in the backup.', { danger: true, okLabel: 'Replace data', title: 'Restore backup?' });
+    const ok = await RS.ui.confirm('This replaces all ' + plural(n, 'client') + ' in your dashboard with the ' + plural(m, 'client') + ' in the backup.', { danger: true, okLabel: 'Replace data', title: 'Restore backup?' });
     if (!ok) return;
     try {
       RS.store.importJSON(text);
@@ -133,7 +133,7 @@
   async function reloadDemo() {
     if (typeof RS.seed !== 'function') { RS.ui.toast('Example data is not available', 'warn'); return; }
     const n = RS.store.clients().length;
-    const ok = await RS.ui.confirm('This replaces ' + (n ? 'all ' + plural(n, 'client') + ' on this device' : 'everything on this device') + ' with example clients.', { danger: n > 0, okLabel: 'Load example data', title: 'Reload example data?' });
+    const ok = await RS.ui.confirm('This replaces ' + (n ? 'all ' + plural(n, 'client') + ' in your dashboard' : 'everything in your dashboard') + ' with example clients.', { danger: n > 0, okLabel: 'Load example data', title: 'Reload example data?' });
     if (!ok) return;
     RS.seed();
     RS.ui.toast('Example data loaded');
@@ -142,7 +142,7 @@
     const n = RS.store.clients().length, r = RS.store.reviews().length;
     const m = RS.ui.modal({
       title: 'Erase everything?',
-      body: h`<p class="confirm-msg">This permanently deletes ${plural(n, 'client')} and ${plural(r, 'review')} from this device. Download a backup first if you might need them.</p>
+      body: h`<p class="confirm-msg">This permanently deletes ${plural(n, 'client')} and ${plural(r, 'review')} from your dashboard on every device. Download a backup first if you might need them.</p>
         <div class="field dt-erase-field"><label for="dt-erase-input">Type ERASE to confirm</label><input id="dt-erase-input" class="input mono" autocomplete="off" autocapitalize="characters" spellcheck="false"></div>
         <div class="modal__foot"><button class="btn btn--ghost" data-close>Cancel</button><button class="btn btn--danger" data-act="erase" disabled>Erase everything</button></div>`,
     });
@@ -294,6 +294,24 @@
     const stale = days == null || days >= 7;
     const persistent = storageWorks();
     const kbText = kb < 10 ? kb.toFixed(1) : Math.round(kb).toLocaleString('en-US');
+    if (RS.sync && RS.sync.cloud) {
+      const photosN = RS.store.clients().reduce((n, c) => n + ((c.siteVisit && c.siteVisit.photos) || []).length, 0);
+      return h`<section class="card dt-card dt-store" aria-labelledby="dt-store-title">
+      <div class="card__head"><h2 class="section-title" id="dt-store-title">Where your data is stored</h2><span class="badge badge--good">Synced across devices</span></div>
+      <p class="dt-lead">Clients, reviews and site photos are saved in your private shared database. Open this dashboard on your phone, tablet or computer and you see the same clients, and changes show up on the others within seconds. Only people you share the dashboard with can open it.</p>
+      <dl class="dt-stats">
+        <div class="dt-stat"><dt>Clients</dt><dd class="num">${clients}</dd></div>
+        <div class="dt-stat"><dt>Reviews</dt><dd class="num">${reviews}</dd></div>
+        <div class="dt-stat"><dt>Activities</dt><dd class="num">${acts}</dd></div>
+        <div class="dt-stat"><dt>Site photos</dt><dd class="num">${photosN}</dd></div>
+      </dl>
+      <div class="dt-lastbk">
+        <span class="muted">Last backup file</span>
+        <span class="mono">${last ? RS.util.fmtDate(last) + ' (' + RS.util.relDays(last) + ')' : 'Never'}</span>
+        <span class="muted">Optional — a backup file is a copy you keep yourself.</span>
+      </div>
+    </section>`;
+    }
     return h`<section class="card dt-card dt-store" aria-labelledby="dt-store-title">
       <div class="card__head"><h2 class="section-title" id="dt-store-title">Where your data is stored</h2>
         ${persistent ? raw('<span class="badge badge--good">Saved in this browser</span>') : raw('<span class="badge badge--bad">Browser storage blocked</span>')}</div>
@@ -332,7 +350,7 @@
   function restoreCard() {
     return h`<section class="card dt-card" aria-labelledby="dt-restore-title">
       <div class="card__head"><h2 class="section-title" id="dt-restore-title">Restore from backup</h2></div>
-      <p class="dt-lead">Replaces the clients on this device with the ones in a backup. You confirm before anything changes.</p>
+      <p class="dt-lead">Replaces the clients in your dashboard with the ones in a backup. You confirm before anything changes.</p>
       <label class="dt-drop" id="dt-drop" for="dt-restore-file">
         ${raw(RS.ui.icon('upload'))}
         <span class="dt-drop__main"><b>Choose a backup file</b> or drop it here</span>
@@ -357,7 +375,7 @@
     return h`<section class="card dt-card${demo ? ' dt-demo-on' : ''}" aria-labelledby="dt-demo-title">
       <div class="card__head"><h2 class="section-title" id="dt-demo-title">${demo ? "You're viewing example clients" : 'Example data and reset'}</h2>
         ${demo ? raw('<span class="badge badge--info">Demo</span>') : ''}</div>
-      ${demo ? raw('<p class="dt-lead">The clients here are made up so you can explore Client Desk. When you are ready to track real clients, clear them and start fresh.</p><div class="dt-actions"><button class="btn btn--danger" type="button" id="dt-clear-demo">' + RS.ui.icon('trash') + 'Clear example data and start fresh</button></div>') : raw('<p class="dt-lead">Load made-up clients to try features, or erase everything on this device.</p>')}
+      ${demo ? raw('<p class="dt-lead">The clients here are made up so you can explore Client Desk. When you are ready to track real clients, clear them and start fresh.</p><div class="dt-actions"><button class="btn btn--danger" type="button" id="dt-clear-demo">' + RS.ui.icon('trash') + 'Clear example data and start fresh</button></div>') : raw('<p class="dt-lead">Load made-up clients to try features, or erase everything.</p>')}
       <div class="dt-actions dt-actions--minor">
         <button class="btn btn--ghost" type="button" id="dt-reload-demo"${canSeed ? '' : ' disabled'}>Reload example data</button>
         <button class="btn btn--ghost dt-danger-text" type="button" id="dt-erase">${raw(RS.ui.icon('trash'))}Erase everything</button>
