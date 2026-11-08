@@ -247,7 +247,7 @@
       grid +
       '<path class="ov-spark__area" d="' + area + '"/>' +
       '<path class="ov-spark__line" d="' + line + '"/>' +
-      '<circle class="ov-spark__hover" r="3.5" cx="-10" cy="-10"/>' +
+      '<circle class="ov-spark__hover" r="3.5" cx="0" cy="0" visibility="hidden"/>' +
       '<circle class="ov-spark__end-ring" cx="' + end[0] + '" cy="' + end[1] + '" r="6"/>' +
       '<circle class="ov-spark__end" cx="' + end[0] + '" cy="' + end[1] + '" r="3.5"/>' +
       '<text class="ov-spark__end-label" x="' + (end[0] + 9) + '" y="' + (end[1] + 4) + '">' + data[data.length - 1][1] + '</text>' +
@@ -258,11 +258,11 @@
     host.querySelectorAll('.ov-spark__hit').forEach(r => {
       const i = Number(r.dataset.i);
       r.addEventListener('mouseenter', () => {
-        hover.setAttribute('cx', pts[i][0]); hover.setAttribute('cy', pts[i][1]);
+        hover.setAttribute('cx', pts[i][0]); hover.setAttribute('cy', pts[i][1]); hover.setAttribute('visibility', 'visible');
         const d = data[i];
         showTip(host.closest('[data-view]'), r, i === data.length - 1 ? 'This week' : 'Week of ' + util.fmtShort(d[0]), plural(d[1], 'new lead'), pts[i][0] + host.getBoundingClientRect().left, pts[i][1] + host.getBoundingClientRect().top);
       });
-      r.addEventListener('mouseleave', () => { hover.setAttribute('cx', -10); hideTip(host.closest('[data-view]')); });
+      r.addEventListener('mouseleave', () => { hover.setAttribute('visibility', 'hidden'); hideTip(host.closest('[data-view]')); });
     });
   }
 
