@@ -1,0 +1,12 @@
+{
+  "name": "rsvi-business-card-tools",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Export print-ready PDFs/PNGs for the Reliable Solutions VI business card and scan sign",
+  "scripts": {
+    "export": "node export.js"
+  },
+  "dependencies": {
+    "pdf-lib": "^1.17.1"
+  }
+}
