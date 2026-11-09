@@ -149,13 +149,20 @@ footer { border-top: 1px solid var(--hairline); padding: 64px 0 32px; }
 .foot-bottom { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-top: 48px; padding-top: 18px; border-top: 1px solid var(--hairline); }
 
 @media (max-width: 960px) {
-  .nav-links { display: none; }
+  .nav { display: grid; grid-template-columns: minmax(0, 1fr) auto; height: auto; padding: 12px 32px 0; gap: 6px 12px; }
+  .nav-links { grid-column: 1 / -1; order: 3; gap: 22px; overflow-x: auto; scrollbar-width: none; padding: 6px 0 12px; }
+  .nav-links::-webkit-scrollbar { display: none; }
+  .nav-link { white-space: nowrap; }
   .foot-grid { grid-template-columns: 1fr 1fr; }
   .cta-band { grid-template-columns: 1fr; padding: 40px 28px; }
   .cta-band .cta-row { justify-content: flex-start; }
 }
 @media (max-width: 600px) {
   .container { padding: 0 16px; }
+  .nav { padding: 10px 16px 0; }
+  .lg-only { display: none; }
+  .brand-name { font-size: 18px; }
+  .brand-mark { width: 34px; height: 34px; }
   .nav-phone, .brand-sub { display: none; }
   .page-hero { padding: 32px 0 56px; }
   .section { padding: 56px 0; }
