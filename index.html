@@ -296,7 +296,7 @@
 
     /* Ledger stat band */
     .ticker { border-top: 2px solid var(--ink); border-bottom: 2px solid var(--ink); background: rgba(220,231,241,.75); }
-    .ticker-grid { display: grid; grid-template-columns: repeat(5, 1fr); }
+    .ticker-grid { display: grid; grid-template-columns: repeat(4, 1fr); }
     .stat { padding: 26px 24px; border-left: 1px solid var(--hairline); }
     .stat:first-child { border-left: 0; padding-left: 0; }
     .stat b { display: block; font-family: var(--mono); font-weight: 400; font-size: clamp(24px, 2.6vw, 34px); line-height: 1; color: var(--ink); }
@@ -550,9 +550,9 @@
       .section-head .sh-title, .section-head .sh-copy { grid-column: 1 / -1; }
       .split-left, .split-right, .review-wrap .split-left, .review-wrap .guestbook { grid-column: 1 / -1; }
       .split-right { margin-top: 24px; }
-      .ticker-grid { grid-template-columns: repeat(3, 1fr); }
-      .stat:nth-child(4) { border-left: 0; padding-left: 0; }
-      .stat:nth-child(n+4) { border-top: 1px solid var(--hairline); }
+      .ticker-grid { grid-template-columns: 1fr 1fr; }
+      .stat:nth-child(odd) { border-left: 0; padding-left: 0; }
+      .stat:nth-child(n+3) { border-top: 1px solid var(--hairline); }
       .can-1, .can-2 { grid-column: span 12; }
       .can-3, .can-4 { grid-column: span 6; }
       .can-1 { grid-row: auto; }
@@ -694,7 +694,6 @@
     <div class="ticker">
       <div class="container ticker-grid">
         <div class="stat"><b><span data-count="10">10</span><span class="acc">+</span></b><span class="mono-label">Years of experience</span></div>
-        <div class="stat"><b><span data-count="4.9">4.9</span><span class="acc">★</span></b><span class="mono-label">Avg. client rating</span></div>
         <div class="stat"><b>24<span class="acc">/</span>7</b><span class="mono-label">Support &amp; monitoring</span></div>
         <div class="stat"><b>1<span class="acc">·</span>day</b><span class="mono-label">Reply guarantee</span></div>
         <div class="stat"><b>USVI</b><span class="mono-label">Island-wide service</span></div>
